@@ -1,16 +1,17 @@
-# React + Vite
+# Digital-health-card-system
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to the frontend repository for the **Digital health card system**. This project is built using React (via Vite) and styled with Tailwind CSS.
 
-Currently, two official plugins are available:
+This repository uses a **Gitflow branching model**. The `develop` branch is our primary workspace. Please pull from and branch off `develop` for all your features.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+To get this project running on your local machine, follow these simple steps:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 1. Clone & Navigate
+If you haven't already, clone the repository and navigate into the root directory:
+```bash
+git clone https://github.com/charith0418/smart-hospital-card-system.git frontend
+cd smart-hospital-card-system
