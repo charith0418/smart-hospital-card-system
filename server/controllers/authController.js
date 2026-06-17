@@ -1,6 +1,19 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 
+const registerUser = async (req, res) => {
+    const { email, password, role } = req.body;
+    try {
+        const userExists = await User.findOne({ email });
+        if (userExists) return res.status(400).json({ message: 'User already exists' });
+
+        const user = await User.create({ email, password, role });
+        res.status(201).json({ message: 'User created successfully', email: user.email, role: user.role });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 const loginUser = async (req, res) => {
     const { email, password, role, rememberMe } = req.body;
 
@@ -32,4 +45,6 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = { loginUser };
+
+
+module.exports = { loginUser, registerUser };
