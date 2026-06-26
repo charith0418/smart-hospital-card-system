@@ -1,10 +1,11 @@
 import React from 'react'
-import LoginForm from './pages/LoginForm'
+// import LoginForm from './pages/LoginForm'
+import DoctorDashboard from './pages/DoctorDashboard'
 
 const App = () => {
   return (
     <div>
-      <LoginForm />
+      <DoctorDashboard />
 
     </div>
   )
