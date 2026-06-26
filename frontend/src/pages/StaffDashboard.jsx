@@ -1,13 +1,13 @@
-import DoctorSidebar from "../components/StaffSidebar";
-import RegisterPatient from "../components/RegisterPatient";
+import StaffSidebar from "../components/StaffSidebar";
+import RegisterationPatient from "../components/RegistrationPatient";
 
-function DoctorDashboard() {
+function StaffDashboard() {
   return (
     // 1. Flex layout lets the sidebar and content sit side-by-side
     <div className="flex bg-gray-100 h-screen overflow-hidden">
       
       {/* Left side navigation */}
-      <DoctorSidebar />
+      <StaffSidebar />
       
       {/* Right side content pane wrapper */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
@@ -20,7 +20,7 @@ function DoctorDashboard() {
 
         {/* Form View Body Container */}
         <main className="p-6">
-          <RegisterPatient />
+          <RegisterationPatient />
         </main>
 
       </div>
@@ -28,4 +28,4 @@ function DoctorDashboard() {
   );
 }
 
-export default DoctorDashboard;
+export default StaffDashboard;
