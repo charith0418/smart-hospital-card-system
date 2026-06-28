@@ -9,9 +9,21 @@ import { BiQrScan } from "react-icons/bi";
 import { LuHospital } from "react-icons/lu";
 import { FaPrescriptionBottleMedical } from "react-icons/fa6";
 import { TbReportSearch } from "react-icons/tb";
+import { AiFillMedicineBox } from "react-icons/ai";
+import { GiMedicines } from "react-icons/gi";
 
 import RegistrationPatient from "./RegistrationPatient";
 
+import StaffDashboard from "../components/StaffDashboard";
+
+import Patients from "../components/Patients";
+import ScanQR from "./ScanQR";
+
+import Reports from "./Reports"
+
+import Treatments from "./Treatments";
+
+import Prescriptions from "./Prescription";
 const StaffSidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -20,6 +32,8 @@ const StaffSidebar = () => {
     { name: "Dashboard", icon: <MdOutlineDashboardCustomize /> },
     { name: "Register Patient", icon: <FaHospitalUser /> },
     { name: "Patients", icon: <BiQrScan /> },
+    { name: "Treatments", icon: <AiFillMedicineBox /> },
+    { name: "Prescriptions", icon: <GiMedicines /> },
     { name: "QR Generator", icon: <LuHospital /> },
     { name: "Print Card", icon: <MdLibraryBooks /> },
     { name: "Update Records", icon: <FaPrescriptionBottleMedical /> },
@@ -96,7 +110,7 @@ const StaffSidebar = () => {
         <main className="p-6 flex-1 bg-gray-50">
 
           {activeTab === "Dashboard" && (
-            <h2>Welcome to Dashboard</h2>
+           <StaffDashboard />
           )}
 
           {activeTab === "Register Patient" && (
@@ -104,11 +118,19 @@ const StaffSidebar = () => {
           )}
 
           {activeTab === "Patients" && (
-            <h2>Patients Page</h2>
+            <Patients />
+          )}
+
+           {activeTab === "Treatments" && (
+            <Treatments />
+          )}
+
+          {activeTab === "Prescriptions" && (
+            <Prescriptions />
           )}
 
           {activeTab === "QR Generator" && (
-            <h2>QR Generator</h2>
+            <ScanQR/>
           )}
 
           {activeTab === "Print Card" && (
@@ -120,7 +142,7 @@ const StaffSidebar = () => {
           )}
 
           {activeTab === "Reports" && (
-            <h2>Reports</h2>
+            <Reports />
           )}
 
         </main>

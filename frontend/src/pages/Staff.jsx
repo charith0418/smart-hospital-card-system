@@ -1,7 +1,13 @@
 import StaffSidebar from "../components/StaffSidebar";
 import RegisterationPatient from "../components/RegistrationPatient";
+import StaffDashboard from "../components/StaffDashboard";
+import Patients from "../components/Patients";
+import ScanQR from "../components/ScanQR";
+import Reports from "../components/Reports";
+import Treatments from "../components/Treatments";
+import Prescriptions from "../components/Prescription";
 
-function StaffDashboard() {
+function Staff() {
   return (
     // 1. Flex layout lets the sidebar and content sit side-by-side
     <div className="flex bg-gray-100 h-screen overflow-hidden">
@@ -21,6 +27,12 @@ function StaffDashboard() {
         {/* Form View Body Container */}
         <main className="p-6">
           <RegisterationPatient />
+          <StaffDashboard />
+          < Patients />
+          <ScanQR />
+          <Reports />
+          <Treatments />
+          <Prescriptions />
         </main>
 
       </div>
@@ -28,4 +40,4 @@ function StaffDashboard() {
   );
 }
 
-export default StaffDashboard;
+export default Staff;
