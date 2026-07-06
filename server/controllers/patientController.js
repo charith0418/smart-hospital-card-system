@@ -3,7 +3,7 @@ const generatePatientId = require('../utils/generatePatientId');
 const QRCode = require('qrcode');
 
 const registerPatient = async (req, res) => {
-    const { fullName, nic, dob, gender, phone, address } = req.body;
+    const { fullName, nic, dob, gender, phone, address, bloodGroup } = req.body;
 
     try {
         const nicExists = await PatientProfile.findOne({ nic });
@@ -16,15 +16,16 @@ const registerPatient = async (req, res) => {
         const qrCodeData = await QRCode.toDataURL(patientId);
 
         const patient = await PatientProfile.create({
-            patientId,
-            fullName,
-            nic,
-            dob,
-            gender,
-            phone,
-            address,
-            qrCodeData
-        });
+    patientId,
+    fullName,
+    nic,
+    dob,
+    gender,
+    phone,
+    address,
+    bloodGroup,
+    qrCodeData
+});
 
         res.status(201).json({
             message: 'Patient registered successfully',
