@@ -5,7 +5,6 @@ export default function PrintCard() {
   const [patientData, setPatientData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // රෝගියාගේ දත්ත සහ QR Code එක Fetch කිරීම
   const handleFetchCard = async (e) => {
     e.preventDefault();
     if (!patientId) return;
@@ -23,14 +22,13 @@ export default function PrintCard() {
     }
   };
 
-  // 🖨️ බ්‍රව්සර් ප්‍රින්ට් එක ක්‍රියාත්මක කිරීමේ ෆන්ක්ෂන් එක
   const triggerPrint = () => {
     window.print();
   };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-4">
-      {/* 🔍 Search Bar (මුද්‍රණය කරද්දී මේ කොටස හැංගෙනවා) */}
+\
       <form onSubmit={handleFetchCard} className="print:hidden flex gap-3 max-w-md mx-auto bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
         <input
           type="text"
@@ -47,8 +45,6 @@ export default function PrintCard() {
       {patientData && (
         <div className="flex flex-col items-center gap-6">
           
-          {/* ==================== SMART CARD LAYOUT ==================== */}
-          {/* මුද්‍රණයට සුදුසු ප්‍රමාණයට (CR80 standard ID size) සකසා ඇත */}
           <div id="hospital-card" className="w-[450px] h-[260px] bg-gradient-to-br from-emerald-800 to-teal-900 text-white p-6 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden border border-emerald-700">
             
             {/* Card Header */}
@@ -66,7 +62,7 @@ export default function PrintCard() {
             <div className="flex gap-4 items-center my-auto">
               {/* QR Code Container */}
               <div className="bg-white p-2 rounded-xl border border-slate-100 flex items-center justify-center shadow-inner">
-                {/* Backend එකෙන් එවන Base64 QR code එක හෝ URL එක මෙතනට වැටේ */}
+  
                 <img 
                   src={patientData.qrCodeUrl || "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Placeholder"} 
                   alt="Patient QR" 
@@ -101,7 +97,6 @@ export default function PrintCard() {
           </div>
           {/* ============================================================ */}
 
-          {/* 🖨️ Action Button (මුද්‍රණය කරද්දී මේ බොත්තම හැංගෙනවා) */}
           <button
             onClick={triggerPrint}
             className="print:hidden px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl transition shadow-lg flex items-center gap-2"
@@ -111,7 +106,6 @@ export default function PrintCard() {
         </div>
       )}
 
-      {/* CSS Styles for Clean Printing (කාඩ් එක විතරක් ප්‍රින්ට් වෙන්න) */}
       <style>{`
         @media print {
           body * {
