@@ -17,7 +17,16 @@ const patientProfileSchema = new mongoose.Schema({
     },
     medicalHistory: [{
         condition: { type: String },
-        year: { type: String }
+        year: { type: String },
+        description: { type: String }
+    }],
+    prescriptions: [{
+        medications: [{
+            name: { type: String },               
+            dosageInstructions: { type: String }, 
+            duration: { type: String }            
+        }],
+        dateIssued: { type: Date, default: Date.now }
     }]
 }, { timestamps: true });
 
