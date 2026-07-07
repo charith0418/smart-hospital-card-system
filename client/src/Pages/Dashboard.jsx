@@ -6,7 +6,6 @@ import HealthCard from "../components/HealthCard";
 import PersonalInfo from "../components/PersonalInfo";
 import MedicalHistory from "../components/MedicalHistory";
 import PrescriptionCard from "../components/PrescriptionCard";
-import AppointmentCard from "../components/AppointmentCard";
 import EmergencyContact from "../components/EmergencyContact";
 
 export default function Dashboard() {
@@ -52,13 +51,6 @@ export default function Dashboard() {
     },
   ]);
 
-  const [appointment] = useState({
-    doctor: "Dr. Sarah Johnson",
-    specialization: "Cardiologist",
-    date: "20 May 2026",
-    time: "10:30 AM",
-  });
-
   const [emergencyContact] = useState({
     name: "Mary Doe",
     relationship: "Wife",
@@ -84,21 +76,22 @@ export default function Dashboard() {
 />
 
         {/* Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Row 1 */}
+<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+  <HealthCard user={user} />
+  <PersonalInfo user={user} />
+</div>
 
-          {/* Row 1 */}
-          <HealthCard user={user} />
-          <PersonalInfo user={user} />
+{/* Row 2 */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+  <MedicalHistory medicalHistory={medicalHistory} />
+  <PrescriptionCard prescriptions={prescriptions} />
+</div>
 
-          {/* Row 2 */}
-          <MedicalHistory medicalHistory={medicalHistory} />
-          <PrescriptionCard prescriptions={prescriptions} />
-          <AppointmentCard appointment={appointment} />
-
-          {/* Row 3 */}
-          <EmergencyContact emergencyContact={emergencyContact} />
-
-        </div>
+{/* Row 3 */}
+<div className="mt-6">
+  <EmergencyContact emergencyContact={emergencyContact} />
+</div>
 
       </main>
 

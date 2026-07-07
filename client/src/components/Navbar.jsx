@@ -4,6 +4,7 @@ import {
   FaSearch,
   FaChevronDown,
   FaBars,
+  FaUserCircle,
 } from "react-icons/fa";
 
 export default function Navbar({
@@ -39,41 +40,20 @@ export default function Navbar({
   <FaBars />
 </button>
 
-        {/* Search Box */}
-        <div className="hidden md:flex items-center bg-gray-100 rounded-xl px-4 py-2 w-full md:w-72">
-
-          <FaSearch className="text-gray-400 mr-3" />
-
-          <input
-            type="text"
-            placeholder="Search..."
-            className="bg-transparent outline-none w-full text-sm"
-          />
-
-        </div>
-
-        {/* Notification */}
-        <button className="relative bg-gray-100 hover:bg-gray-200 transition p-3 rounded-xl">
-
-          <FaBell className="text-gray-600 text-lg" />
-
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
-            3
-          </span>
-
-        </button>
-
         {/* User */}
         <div className="flex items-center gap-3 cursor-pointer">
 
-          <img
-            src={
-              user.profileImage ||
-              "https://i.pravatar.cc/150?img=11"
-            }
-            alt="Profile"
-            className="w-12 h-12 rounded-full border-2 border-[#1E5FAD] object-cover"
-          />
+          <div className="w-12 h-12 rounded-full border-2 border-[#1E5FAD] bg-gray-100 flex items-center justify-center overflow-hidden">
+            {user.profileImage ? (
+              <img
+                src={user.profileImage}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <FaUserCircle className="w-full h-full text-gray-400" />
+            )}
+          </div>
 
           <div className="hidden lg:block">
 

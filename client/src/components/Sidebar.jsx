@@ -14,13 +14,10 @@ import {
 
 const menuItems = [
   { name: "Dashboard", icon: <FaHome />, active: true },
-  { name: "My Profile", icon: <FaUser />, active: false },
   { name: "Health Card", icon: <FaIdCard />, active: false },
   { name: "Medical History", icon: <FaHistory />, active: false },
   { name: "Prescriptions", icon: <FaFileMedical />, active: false },
-  { name: "Appointments", icon: <FaCalendarAlt />, active: false },
   { name: "Emergency", icon: <FaAmbulance />, active: false },
-  { name: "Settings", icon: <FaCog />, active: false },
   { name: "Logout", icon: <FaSignOutAlt />, active: false },
 ];
 

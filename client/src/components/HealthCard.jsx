@@ -1,5 +1,5 @@
 import React from "react";
-import { FaDownload } from "react-icons/fa";
+import { FaDownload, FaUserCircle } from "react-icons/fa";
 
 export default function HealthCard({ user = {} }) {
   return (
@@ -28,14 +28,17 @@ export default function HealthCard({ user = {} }) {
         {/* Left Side */}
         <div className="flex items-center gap-5">
 
-          <img
-            src={
-              user.profileImage ||
-              "https://i.pravatar.cc/150?img=11"
-            }
-            alt="Patient"
-            className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg object-cover"
-          />
+          <div className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+  {user.profileImage ? (
+    <img
+      src={user.profileImage}
+      alt="Patient"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <FaUserCircle className="w-full h-full text-gray-400" />
+  )}
+</div>
 
           <div className="space-y-2">
 
@@ -92,7 +95,7 @@ export default function HealthCard({ user = {} }) {
       </div>
 
       {/* Footer */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-10">
 
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <p className="text-xs text-gray-500">
@@ -121,14 +124,6 @@ export default function HealthCard({ user = {} }) {
           </h4>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-xs text-gray-500">
-            Status
-          </p>
-          <h4 className="font-semibold text-green-600 mt-1">
-            Active
-          </h4>
-        </div>
 
       </div>
 
