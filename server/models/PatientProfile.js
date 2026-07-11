@@ -10,6 +10,7 @@ const patientProfileSchema = new mongoose.Schema({
     phone: { type: String },
     address: { type: String },
     gender: { type: String },
+    lastVisit: { type: Date },
     qrCodeData: { type: String },
     emergencyContact: {
         name: { type: String },

@@ -56,5 +56,21 @@ const getPatientById = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+//add new part
+const searchPatients = async (req, res) => {
+    const { q } = req.query;
+    try {
+        const patients = await PatientProfile.find({
+            $or: [
+                { fullName: { $regex: q, $options: 'i' } },
+                { patientId: { $regex: q, $options: 'i' } }
+            ]
+        }).limit(10);
+        res.status(200).json(patients);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
 
-module.exports = { registerPatient, getPatients, getPatientById };
+
+module.exports = { registerPatient, getPatients, getPatientById,searchPatients };
