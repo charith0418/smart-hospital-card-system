@@ -13,21 +13,21 @@ const patientProfileSchema = new mongoose.Schema({
     
     medicalHistory: {
         diagnoses: [{
-            diagnosis: { type: String }, // e.g., "Hypertension"
-            doctor: { type: String },    // e.g., "Dr. N. Silva"
-            date: { type: Date }         // e.g., "2026-04-12"
-            // Note: 'status' field intentionally omitted based on your requirements
+            diagnosis: { type: String }, 
+            doctor: { type: String },    
+            date: { type: Date }         
+            
         }],
         surgeries: [{
-            procedure: { type: String }, // e.g., "Appendectomy"
-            year: { type: String }       // e.g., "2022"
+            procedure: { type: String }, 
+            year: { type: String }       
         }],
         allergies: [{ 
-            type: String                 // e.g., "Penicillin", "Seafood"
+            type: String                 
         }],
         vaccinations: [{
-            name: { type: String },      // e.g., "Covid-19 Booster"
-            year: { type: String }       // e.g., "2025"
+            name: { type: String },      
+            year: { type: String }       
         }]
     },
     prescriptions: [{
