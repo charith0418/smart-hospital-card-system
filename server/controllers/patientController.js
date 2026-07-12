@@ -65,4 +65,19 @@ const downloadQRCode = async (req, res) => {
     }
 };
 
+const getMedicalHistory = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const historyData = await patientService.getDetailedMedicalHistory(userId);
+        
+        res.status(200).json(historyData);
+    } catch (error) {
+        console.error("Medical History Fetch Error:", error.message);
+        if (error.message === 'Patient profile not found') {
+            return res.status(404).json({ message: 'Patient profile not found.' });
+        }
+        res.status(500).json({ message: 'Server error while fetching medical history' });
+    }
+};
+
 module.exports = { getDashboard , createTestProfile , downloadQRCode, getMedicalHistory};
