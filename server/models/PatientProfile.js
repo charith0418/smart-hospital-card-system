@@ -10,16 +10,26 @@ const patientProfileSchema = new mongoose.Schema({
     address: { type: String },
     gender: { type: String },
     qrCodeData: { type: String },
-    emergencyContact: {
-        name: { type: String },
-        relation: { type: String },
-        phone: { type: String }
+    
+    medicalHistory: {
+        diagnoses: [{
+            diagnosis: { type: String }, // e.g., "Hypertension"
+            doctor: { type: String },    // e.g., "Dr. N. Silva"
+            date: { type: Date }         // e.g., "2026-04-12"
+            // Note: 'status' field intentionally omitted based on your requirements
+        }],
+        surgeries: [{
+            procedure: { type: String }, // e.g., "Appendectomy"
+            year: { type: String }       // e.g., "2022"
+        }],
+        allergies: [{ 
+            type: String                 // e.g., "Penicillin", "Seafood"
+        }],
+        vaccinations: [{
+            name: { type: String },      // e.g., "Covid-19 Booster"
+            year: { type: String }       // e.g., "2025"
+        }]
     },
-    medicalHistory: [{
-        condition: { type: String },
-        year: { type: String },
-        description: { type: String }
-    }],
     prescriptions: [{
         medications: [{
             name: { type: String },               
@@ -27,7 +37,12 @@ const patientProfileSchema = new mongoose.Schema({
             duration: { type: String }            
         }],
         dateIssued: { type: Date, default: Date.now }
-    }]
+    }],
+    emergencyContact: {
+        name: { type: String },
+        relation: { type: String },
+        phone: { type: String }
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('PatientProfile', patientProfileSchema);
