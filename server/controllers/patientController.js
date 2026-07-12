@@ -1,5 +1,6 @@
 const patientService = require('../services/patientService');
-const PatientProfile = require('../models/PatientProfile'); 
+const PatientProfile = require('../models/PatientProfile')
+const QRCode = require('qrcode'); 
 
 const createTestProfile = async (req, res) => {
     try {
@@ -35,6 +36,32 @@ const getDashboard = async (req, res) => {
         }
         
         res.status(500).json({ message: 'Server error while fetching dashboard data' });
+    }
+};
+
+
+const downloadQRCode = async (req, res) => {
+    try {
+        const profile = await PatientProfile.findOne({ user: req.user._id });
+
+        if (!profile || !profile.qrCodeData) {
+            return res.status(404).json({ message: 'QR Code data not found for this patient.' });
+        }
+       
+        const qrBuffer = await QRCode.toBuffer(profile.qrCodeData, {
+            errorCorrectionLevel: 'H', 
+            type: 'png',
+            width: 300,               
+            margin: 2
+        });
+        res.set({
+            'Content-Type': 'image/png',
+            'Content-Disposition': `attachment; filename="${profile.patientId}-HealthCard-QR.png"`,
+        });
+        res.send(qrBuffer);
+    } catch (error) {
+        console.error("QR Code Generation Error:", error.message);
+        res.status(500).json({ message: 'Error generating QR code file' });
     }
 };
 
