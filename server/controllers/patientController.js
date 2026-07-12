@@ -1,19 +1,16 @@
 const patientService = require('../services/patientService');
+const PatientProfile = require('../models/PatientProfile'); 
 
-const PatientProfile = require('../models/PatientProfile'); // Ensure this is imported at the top
-
-// Temporary route to seed a patient profile for testing
 const createTestProfile = async (req, res) => {
     try {
-        // Check if profile already exists for this user
         const existingProfile = await PatientProfile.findOne({ user: req.user._id });
         if (existingProfile) {
             return res.status(400).json({ message: 'Profile already exists for this user' });
         }
 
         const newProfile = await PatientProfile.create({
-            user: req.user._id, // Gets ID from the token
-            ...req.body         // Spreads the rest of the data from Postman
+            user: req.user._id, 
+            ...req.body        
         });
 
         res.status(201).json({ message: 'Test profile created successfully!', profile: newProfile });
@@ -21,7 +18,6 @@ const createTestProfile = async (req, res) => {
         res.status(500).json({ message: 'Error creating profile', error: error.message });
     }
 };
-
 
 const getDashboard = async (req, res) => {
     try {
@@ -42,4 +38,4 @@ const getDashboard = async (req, res) => {
     }
 };
 
-module.exports = { getDashboard , createTestProfile};
+module.exports = { getDashboard , createTestProfile , downloadQRCode, getMedicalHistory};
