@@ -1,7 +1,7 @@
 import React from "react";
 import { FaNotesMedical } from "react-icons/fa";
 
-export default function MedicalHistory({ medicalHistory = [] }) {
+export default function MedicalHistory({ medicalHistory = [], onViewAll }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 h-full">
 
@@ -33,16 +33,16 @@ export default function MedicalHistory({ medicalHistory = [] }) {
               <div className="flex justify-between items-start">
                 <div>
                   <h4 className="font-semibold text-gray-800">
-                    {item.condition || "Condition Name"}
+                    {item.diagnosis || "diagnosis Name"}
                   </h4>
 
                   <p className="text-sm text-gray-500 mt-1">
-                    {item.description || "No description available"}
+                    {item.doctor || "doctor Name"}
                   </p>
                 </div>
 
                 <span className="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full">
-                  {item.year || "----"}
+                  {item.date || "----"}
                 </span>
               </div>
             </div>
@@ -59,8 +59,11 @@ export default function MedicalHistory({ medicalHistory = [] }) {
 
       {/* Footer */}
       <div className="mt-5 text-right">
-        <button className="text-[#1E5FAD] font-semibold text-sm hover:underline">
-          View All
+        <button
+            onClick={onViewAll}
+            className="text-[#1E5FAD] font-semibold text-sm hover:underline"
+        >
+            View All
         </button>
       </div>
 

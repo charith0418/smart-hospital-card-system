@@ -21,7 +21,7 @@ const menuItems = [
   { name: "Logout", icon: <FaSignOutAlt />, active: false },
 ];
 
-export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
+export default function Sidebar({ sidebarOpen, setSidebarOpen, onMenuClick }) {
   return (
     <>
       {/* Mobile overlay */}
@@ -61,13 +61,14 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
         <nav className="flex-1 mt-6 px-4">
           {menuItems.map((item, index) => (
             <button
-              key={index}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl mb-2 transition-all duration-300 ${
-                item.active
-                  ? "bg-white text-[#1E5FAD] font-semibold shadow-lg"
-                  : "hover:bg-white/20 text-white"
-              }`}
-            >
+    key={index}
+    onClick={() => onMenuClick(item.name)}
+    className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl mb-2 transition-all duration-300 ${
+        item.active
+            ? "bg-white text-[#1E5FAD] font-semibold shadow-lg"
+            : "hover:bg-white/20 text-white"
+    }`}
+>
               <span className="text-lg">{item.icon}</span>
               <span>{item.name}</span>
             </button>
