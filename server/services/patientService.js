@@ -36,6 +36,37 @@ const getPatientDashboardData = async (userId, userEmail) => {
     };
 };
 
+const getDetailedMedicalHistory = async (userId) => {
+    const profile = await PatientProfile.findOne({ user: userId });
+
+    if (!profile) {
+        throw new Error('Patient profile not found');
+    }
+
+    let currentAge = 'N/A';
+    if (profile.dob) {
+        const diffMs = Date.now() - profile.dob.getTime();
+        const ageDate = new Date(diffMs); 
+        currentAge = Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+    return {
+        headerInfo: {
+            fullName: profile.fullName,
+            age: `${currentAge} Years`,
+            bloodGroup: profile.bloodGroup,
+            dob: profile.dob
+        },
+        history: profile.medicalHistory || {
+            diagnoses: [],
+            surgeries: [],
+            allergies: [],
+            vaccinations: []
+        }
+    };
+};
+
+
 module.exports = {
-    getPatientDashboardData
+    getPatientDashboardData,
+    getDetailedMedicalHistory
 };
