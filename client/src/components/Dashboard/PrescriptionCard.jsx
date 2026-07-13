@@ -1,7 +1,13 @@
 import React from "react";
 import { FaPills } from "react-icons/fa";
 
-export default function PrescriptionCard({ prescriptions = [] }) {
+export default function PrescriptionCard({
+  prescriptions = [],
+  onViewAll,
+}) {
+  // Get the latest prescription (assuming the first one is the latest)
+  const latestPrescription = prescriptions[0];
+
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 h-full">
 
@@ -9,7 +15,7 @@ export default function PrescriptionCard({ prescriptions = [] }) {
       <div className="flex justify-between items-center mb-5">
         <div>
           <h3 className="text-xl font-bold text-gray-800">
-            Latest Prescriptions
+            Prescriptions & Treatments
           </h3>
           <p className="text-sm text-gray-500">
             Current prescribed medicines
@@ -21,55 +27,70 @@ export default function PrescriptionCard({ prescriptions = [] }) {
         </div>
       </div>
 
-      {/* Prescription List */}
-      <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
-
-        {prescriptions.length > 0 ? (
-          prescriptions.map((medicine, index) => (
-            <div
-              key={index}
-              className="border border-gray-100 rounded-xl p-4 hover:shadow-md transition"
-            >
-              <div className="flex items-start gap-4">
-
-                <div className="bg-red-50 text-red-500 p-3 rounded-full">
-                  <FaPills />
-                </div>
-
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-800">
-                    {medicine.name || "Medicine Name"}
-                  </h4>
-
-                  <p className="text-sm text-gray-500 mt-1">
-                    {medicine.dosage || "Dosage not available"}
-                  </p>
-
-                  <p className="text-xs text-gray-400 mt-2">
-                    Duration: {medicine.duration || "--"}
-                  </p>
-                </div>
-
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-10">
-            <p className="text-gray-400">
-              No prescriptions available
+      {latestPrescription ? (
+        <>
+          {/* Prescription Details */}
+          <div className="flex justify-between items-start mb-4">
+            <h4 className="font-semibold text-gray-800">
+              {latestPrescription.diagnosis}
+            </h4>
+            <p className="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full">
+              {latestPrescription.date}
             </p>
           </div>
-        )}
 
-      </div>
+          {/* Medicines */}
+          <div className="space-y-3 max-h-72 overflow-y-auto pr-2">
+            {latestPrescription.medicines.map((medicine) => (
+              <div
+                key={medicine.id}
+                className="border border-gray-100 rounded-xl p-4 hover:shadow-md transition"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h5 className="font-semibold text-gray-800">
+                      {medicine.medicine}
+                    </h5>
+
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Dosage:</span>{" "}
+                      {medicine.dosage}
+                    </p>
+
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Frequency:</span>{" "}
+                      {medicine.frequency}
+                    </p>
+
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Duration:</span>{" "}
+                      {medicine.duration}
+                    </p>
+                  </div>
+
+                  <div className="bg-red-100 p-2 rounded-full text-red-500">
+                    <FaPills />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-10 text-gray-400">
+          No prescriptions available
+        </div>
+      )}
 
       {/* Footer */}
       <div className="mt-5 text-right">
-        <button className="text-[#1E5FAD] font-semibold text-sm hover:underline">
+        <button
+          onClick={onViewAll}
+          className="text-[#1E5FAD] font-semibold text-sm hover:underline"
+        >
           View All
         </button>
       </div>
-
     </div>
   );
 }

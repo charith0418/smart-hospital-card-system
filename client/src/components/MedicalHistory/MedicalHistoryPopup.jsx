@@ -94,12 +94,6 @@ export default function MedicalHistoryPopup({ open, onClose, user, medicalHistor
 
             </div>
 
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2">
-
-              <FileDown size={18} />
-              Export PDF
-
-            </button>
 
           </div>
 

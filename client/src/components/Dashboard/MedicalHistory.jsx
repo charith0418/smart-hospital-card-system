@@ -30,7 +30,7 @@ export default function MedicalHistory({ medicalHistory = [], onViewAll }) {
               key={index}
               className="border border-gray-100 rounded-xl p-4 hover:shadow-md transition"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start mb-4">
                 <div>
                   <h4 className="font-semibold text-gray-800">
                     {item.diagnosis || "diagnosis Name"}
