@@ -66,7 +66,36 @@ const getDetailedMedicalHistory = async (userId) => {
 };
 
 
+const getPrescriptionDetails = async (userId) => {
+    const profile = await PatientProfile.findOne({ user: userId });
+
+    if (!profile) {
+        throw new Error('Patient profile not found');
+    }
+
+    
+    const sortedPrescriptions = profile.prescriptions.sort((a, b) => b.dateIssued - a.dateIssued);
+
+
+    let latestPrescription = null;
+    let previousPrescriptions = [];
+
+    if (sortedPrescriptions.length > 0) {
+        latestPrescription = sortedPrescriptions[0]; 
+        previousPrescriptions = sortedPrescriptions.slice(1); 
+    }
+
+    return {
+        patientName: profile.fullName, 
+        latestPrescription: latestPrescription,
+        previousPrescriptions: previousPrescriptions,
+        allPrescriptions: sortedPrescriptions 
+    };
+};
+
+
 module.exports = {
     getPatientDashboardData,
-    getDetailedMedicalHistory
+    getDetailedMedicalHistory,
+    getPrescriptionDetails
 };
