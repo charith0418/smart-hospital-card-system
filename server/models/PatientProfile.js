@@ -31,10 +31,17 @@ const patientProfileSchema = new mongoose.Schema({
         }]
     },
     prescriptions: [{
+        prescriptionId: { type: String }, 
+        doctorName: { type: String },     
+        hospital: { type: String },       
+        diagnosis: { type: String },      
+        instructions: { type: String },  
+        dateIssued: { type: Date, default: Date.now },
         medications: [{
-            name: { type: String },               
-            dosageInstructions: { type: String }, 
-            duration: { type: String }            
+            name: { type: String },       
+            dosage: { type: String },    
+            frequency: { type: String },  
+            duration: { type: String }    
         }],
         dateIssued: { type: Date, default: Date.now }
     }],
