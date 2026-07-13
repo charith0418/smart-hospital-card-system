@@ -80,4 +80,19 @@ const getMedicalHistory = async (req, res) => {
     }
 };
 
-module.exports = { getDashboard , createTestProfile , downloadQRCode, getMedicalHistory};
+const getPrescriptions = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const prescriptionData = await patientService.getPrescriptionDetails(userId);
+        
+        res.status(200).json(prescriptionData);
+    } catch (error) {
+        console.error("Prescription Fetch Error:", error.message);
+        if (error.message === 'Patient profile not found') {
+            return res.status(404).json({ message: 'Patient profile not found.' });
+        }
+        res.status(500).json({ message: 'Server error while fetching prescriptions' });
+    }
+};
+
+module.exports = { getDashboard , createTestProfile , downloadQRCode, getMedicalHistory, getPrescriptions};
