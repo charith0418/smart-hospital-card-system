@@ -31,7 +31,7 @@ const getReports = async (req, res) => {
             patientsThisMonth,
             treatmentsThisWeek,
             totalPrescriptions
-        });s
+        });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }

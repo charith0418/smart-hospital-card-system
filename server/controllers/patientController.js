@@ -1,44 +1,26 @@
-const PatientProfile = require('../models/PatientProfile');
 const generatePatientId = require('../utils/generatePatientId');
 const QRCode = require('qrcode');
+const patientService = require('../services/patientService');
 
 const registerPatient = async (req, res) => {
     const { fullName, nic, dob, gender, phone, address, bloodGroup } = req.body;
-
     try {
-        const nicExists = await PatientProfile.findOne({ nic });
-        if (nicExists) {
-            return res.status(400).json({ message: 'Patient with this NIC already exists' });
-        }
-
         const patientId = await generatePatientId();
-
         const qrCodeData = await QRCode.toDataURL(patientId);
-
-        const patient = await PatientProfile.create({
-    patientId,
-    fullName,
-    nic,
-    dob,
-    gender,
-    phone,
-    address,
-    bloodGroup,
-    qrCodeData
-});
-
-        res.status(201).json({
-            message: 'Patient registered successfully',
-            patient
+        const patient = await patientService.registerPatient({
+            patientId, fullName, nic, dob, gender,
+            phone, address, bloodGroup, qrCodeData
         });
+        res.status(201).json({ message: 'Patient registered successfully', patient });
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(error.message.includes('NIC') ? 400 : 500)
+           .json({ message: error.message });
     }
 };
 
 const getPatients = async (req, res) => {
     try {
-        const patients = await PatientProfile.find().sort({ createdAt: -1 });
+        const patients = await patientService.getAllPatients();
         res.status(200).json(patients);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -47,30 +29,21 @@ const getPatients = async (req, res) => {
 
 const getPatientById = async (req, res) => {
     try {
-        const patient = await PatientProfile.findOne({ patientId: req.params.id });
-        if (!patient) {
-            return res.status(404).json({ message: 'Patient not found' });
-        }
+        const patient = await patientService.getPatientById(req.params.id);
         res.status(200).json(patient);
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(404).json({ message: error.message });
     }
 };
-//add new part
+
 const searchPatients = async (req, res) => {
     const { q } = req.query;
     try {
-        const patients = await PatientProfile.find({
-            $or: [
-                { fullName: { $regex: q, $options: 'i' } },
-                { patientId: { $regex: q, $options: 'i' } }
-            ]
-        }).limit(10);
+        const patients = await patientService.searchPatients(q);
         res.status(200).json(patients);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
-
-module.exports = { registerPatient, getPatients, getPatientById,searchPatients };
+module.exports = { registerPatient, getPatients, getPatientById, searchPatients };
