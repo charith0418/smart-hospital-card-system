@@ -1,16 +1,16 @@
 const PatientProfile = require('../models/PatientProfile');
+const Prescription = require('../models/Prescription'); 
+const Treatment = require('../models/Treatment');
 
 const getPatientDashboardData = async (userId, userEmail) => {
-   
     const profile = await PatientProfile.findOne({ user: userId });
 
     if (!profile) {
         throw new Error('Patient profile not found'); 
     }
 
-    const latestPrescriptionData = profile.prescriptions.length > 0 
-        ? profile.prescriptions[profile.prescriptions.length - 1].medications 
-        : [];
+    const latestPrescription = await Prescription.findOne({ patient: profile._id }).sort({ dateIssued: -1 });
+    const latestPrescriptionData = latestPrescription ? latestPrescription.medications : [];
 
     return {
         healthCard: {
@@ -74,7 +74,16 @@ const getPrescriptionDetails = async (userId) => {
     }
 
     
-    const sortedPrescriptions = profile.prescriptions.sort((a, b) => b.dateIssued - a.dateIssued);
+    const rawPrescriptions = await Prescription.find({ patient: profile._id }).sort({ dateIssued: -1 }).lean();
+    const allTreatments = await Treatment.find({ patient: profile._id }).lean();
+
+    const sortedPrescriptions = rawPrescriptions.map(rx => {
+        const matchingTreatment = allTreatments.find(t => t.prescriptionId === rx.prescriptionId);
+        return {
+            ...rx,
+            instructions: matchingTreatment ? matchingTreatment.instructions : "No specific instructions provided."
+        };
+    });
 
 
     let latestPrescription = null;

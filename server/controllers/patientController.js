@@ -1,5 +1,7 @@
 const patientService = require('../services/patientService');
-const PatientProfile = require('../models/PatientProfile')
+const PatientProfile = require('../models/PatientProfile');
+const Prescription = require('../models/Prescription'); 
+const Treatment = require('../models/Treatment');
 const QRCode = require('qrcode'); 
 
 const createTestProfile = async (req, res) => {
@@ -9,12 +11,27 @@ const createTestProfile = async (req, res) => {
             return res.status(400).json({ message: 'Profile already exists for this user' });
         }
 
+        const { prescriptions, treatments, ...profileData } = req.body;
+
+        // 1. Create Patient
         const newProfile = await PatientProfile.create({
             user: req.user._id, 
-            ...req.body        
+            ...profileData        
         });
 
-        res.status(201).json({ message: 'Test profile created successfully!', profile: newProfile });
+        // 2. Create Prescriptions (Linked to Patient ID)
+        if (prescriptions && prescriptions.length > 0) {
+            const rxData = prescriptions.map(rx => ({ ...rx, patient: newProfile._id }));
+            await Prescription.insertMany(rxData);
+        }
+
+        // 3. Create Treatments (Linked to Patient ID)
+        if (treatments && treatments.length > 0) {
+            const treatmentData = treatments.map(t => ({ ...t, patient: newProfile._id }));
+            await Treatment.insertMany(treatmentData);
+        }
+
+        res.status(201).json({ message: 'Test profile, prescriptions, and treatments created successfully!' });
     } catch (error) {
         res.status(500).json({ message: 'Error creating profile', error: error.message });
     }
