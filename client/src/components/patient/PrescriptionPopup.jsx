@@ -192,7 +192,7 @@ export default function PrescriptionPopup({
                 </div>
 
               {/* Instructions */}
-              <div className="border rounded-2xl p-6 mt-5 bg-green-100">
+              <div className=" rounded-2xl p-6 mt-5 bg-green-100">
                 <h4 className="mb-4 font-semibold text-black-800">
                   Treatments & Instructions
                 </h4>
