@@ -1,4 +1,5 @@
 import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   FaHospital,
   FaTachometerAlt,
@@ -13,16 +14,18 @@ import {
 } from "react-icons/fa";
 
 const menuItems = [
-  { title: "Dashboard", icon: <FaTachometerAlt />, active: true },
-  { title: "User Management", icon: <FaUsers /> },
-  { title: "Doctors", icon: <FaUserMd /> },
-  { title: "Staff", icon: <FaUserNurse /> },
-  { title: "System Logs", icon: <FaClipboardList /> },
-  { title: "Reports", icon: <FaFileAlt /> },
-  { title: "Logout", icon: <FaSignOutAlt /> },
+  { title: "Dashboard", icon: <FaTachometerAlt />, path: "/" },
+  { title: "User Management", icon: <FaUsers />, path: "/users" },
+  { title: "Doctors", icon: <FaUserMd />, path: "/doctors" },
+  { title: "Staff", icon: <FaUserNurse />, path: "/staff" },
+  { title: "System Logs", icon: <FaClipboardList />, path: "/logs" },
+  { title: "Reports", icon: <FaFileAlt />, path: "/reports" },
+  { title: "Logout", icon: <FaSignOutAlt />, path: "/logout" },
 ];
 
 export default function AdminSidebar() {
+  const location = useLocation();
+
   return (
     <aside className="fixed left-0 top-0 w-72 h-screen bg-[#0B1F4D] text-white flex flex-col shadow-2xl">
 
@@ -55,17 +58,15 @@ export default function AdminSidebar() {
 
         {menuItems.map((item, index) => (
 
-          <button
+          <Link
             key={index}
-            className={`w-full flex items-center gap-4 px-5 py-3 rounded-xl mb-2 transition-all duration-300
-
-            ${
-              item.active
+            to={item.path}
+            className={`w-full flex items-center gap-4 px-5 py-3 rounded-xl mb-2 transition-all duration-300 ${
+              location.pathname === item.path
                 ? "bg-white text-[#0B1F4D] shadow-lg font-semibold"
                 : "hover:bg-white/10 text-gray-200"
             }`}
           >
-
             <span className="text-lg">
               {item.icon}
             </span>
@@ -74,7 +75,7 @@ export default function AdminSidebar() {
               {item.title}
             </span>
 
-          </button>
+          </Link>
 
         ))}
 
