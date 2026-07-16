@@ -2,12 +2,11 @@ const PatientProfile = require('../models/PatientProfile');
 const Prescription = require('../models/Prescription'); 
 const Treatment = require('../models/Treatment');
 
+// --- YOUR PATIENT DASHBOARD SERVICES ---
+
 const getPatientDashboardData = async (userId, userEmail) => {
     const profile = await PatientProfile.findOne({ user: userId });
-
-    if (!profile) {
-        throw new Error('Patient profile not found'); 
-    }
+    if (!profile) throw new Error('Patient profile not found'); 
 
     const latestPrescription = await Prescription.findOne({ patient: profile._id }).sort({ dateIssued: -1 });
     const latestPrescriptionData = latestPrescription ? latestPrescription.medications : [];
@@ -38,10 +37,7 @@ const getPatientDashboardData = async (userId, userEmail) => {
 
 const getDetailedMedicalHistory = async (userId) => {
     const profile = await PatientProfile.findOne({ user: userId });
-
-    if (!profile) {
-        throw new Error('Patient profile not found');
-    }
+    if (!profile) throw new Error('Patient profile not found');
 
     let currentAge = 'N/A';
     if (profile.dob) {
@@ -56,24 +52,14 @@ const getDetailedMedicalHistory = async (userId) => {
             bloodGroup: profile.bloodGroup,
             dob: profile.dob
         },
-        history: profile.medicalHistory || {
-            diagnoses: [],
-            surgeries: [],
-            allergies: [],
-            vaccinations: []
-        }
+        history: profile.medicalHistory || { diagnoses: [], surgeries: [], allergies: [], vaccinations: [] }
     };
 };
 
-
 const getPrescriptionDetails = async (userId) => {
     const profile = await PatientProfile.findOne({ user: userId });
+    if (!profile) throw new Error('Patient profile not found');
 
-    if (!profile) {
-        throw new Error('Patient profile not found');
-    }
-
-    
     const rawPrescriptions = await Prescription.find({ patient: profile._id }).sort({ dateIssued: -1 }).lean();
     const allTreatments = await Treatment.find({ patient: profile._id }).lean();
 
@@ -84,7 +70,6 @@ const getPrescriptionDetails = async (userId) => {
             instructions: matchingTreatment ? matchingTreatment.instructions : "No specific instructions provided."
         };
     });
-
 
     let latestPrescription = null;
     let previousPrescriptions = [];
@@ -102,9 +87,40 @@ const getPrescriptionDetails = async (userId) => {
     };
 };
 
+// --- YOUR PARTNER's STAFF SERVICES ---
 
+const getAllPatients = async () => {
+    return await PatientProfile.find().sort({ createdAt: -1 });
+};
+
+const getPatientById = async (patientId) => {
+    const patient = await PatientProfile.findOne({ patientId });
+    if (!patient) throw new Error('Patient not found');
+    return patient;
+};
+
+const searchPatients = async (query) => {
+    return await PatientProfile.find({
+        $or: [
+            { fullName: { $regex: query, $options: 'i' } },
+            { patientId: { $regex: query, $options: 'i' } }
+        ]
+    }).limit(10);
+};
+
+const registerPatient = async (patientData) => {
+    const nicExists = await PatientProfile.findOne({ nic: patientData.nic });
+    if (nicExists) throw new Error('Patient with this NIC already exists');
+    return await PatientProfile.create(patientData);
+};
+
+// Export ALL functions combined
 module.exports = {
     getPatientDashboardData,
     getDetailedMedicalHistory,
-    getPrescriptionDetails
+    getPrescriptionDetails,
+    getAllPatients, 
+    getPatientById, 
+    searchPatients, 
+    registerPatient
 };
