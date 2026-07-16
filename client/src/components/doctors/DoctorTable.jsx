@@ -1,4 +1,4 @@
-export default function DoctorTable({ doctors }) {
+export default function DoctorTable({ doctors, onView,onEdit }) {
   return (
     <div className="mt-8 bg-white rounded-2xl shadow overflow-hidden">
 
@@ -65,12 +65,18 @@ export default function DoctorTable({ doctors }) {
 
                   <div className="flex justify-center gap-2">
 
-                    <button className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200">
-                      View
+                    <button
+                    onClick={() => onView(doctor)}
+                    className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200"
+                    >
+                        View
                     </button>
 
-                    <button className="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200">
-                      Edit
+                    <button
+                        onClick={() => onEdit(doctor)}
+                        className="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                    >
+                        Edit
                     </button>
 
                     <button className="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200">

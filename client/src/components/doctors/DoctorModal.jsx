@@ -1,12 +1,21 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  X,
+}from "lucide-react";
 
-export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) {
-  if (!open) return null;
 
-  const doctorId = `DOC${String(doctorCount + 1).padStart(4, "0")}`;
+export default function DoctorModal({ open, onClose, addDoctor, doctorCount, isEdit, doctor, updateDoctor }) {
 
-  const email = `${doctorId.toLowerCase()}@dr.mh.ac.lk`;
+ 
+
+  const doctorId = isEdit
+    ? doctor?.doctorId
+    : `DOC${String(doctorCount + 1).padStart(4, "0")}`;
+
+  const email = isEdit
+    ? doctor?.email
+    : `${doctorId.toLowerCase()}@dr.mh.ac.lk`;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -17,9 +26,59 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+   //Edit doctor
+      useEffect(() => {
+        if (isEdit && doctor) {
+          const names = doctor.name.replace("Dr. ", "").split(" ");
+
+          setFirstName(names[0] || "");
+          setLastName(names[1] || "");
+          setPhone(doctor.phone || "");
+          setNic(doctor.nic || "");
+          setSpecialization(doctor.specialization || "");
+          setLicense(doctor.license || "");
+        }
+      }, [doctor, isEdit]);
+
+       if (!open) return null;
+
+  const resetForm = () => {
+    setFirstName("");
+    setLastName("");
+    setPhone("");
+    setNic("");
+    setSpecialization("");
+    setLicense("");
+    setPassword("");
+    setConfirmPassword("");
+  };
+
   const handleRegister = () => {
 
+    if (isEdit) {
+
+      const updatedDoctor = {
+        id: doctor.id,
+        doctorId: doctor.doctorId,
+        name: `Dr. ${firstName} ${lastName}`,
+        specialization,
+        email: doctor.email,
+        phone,
+        nic,
+        license,
+      };
+
+
+      updateDoctor(updatedDoctor);
+
+      resetForm();
+      onClose();
+
+      return;
+    }
+
       // Check required fields
+
       if (
         !firstName ||
         !lastName ||
@@ -56,44 +115,47 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
       addDoctor(newDoctor);
 
       // Close popup
+      resetForm();
       onClose();
-
-      // Clear form
-      setFirstName("");
-      setLastName("");
-      setPhone("");
-      setNic("");
-      setSpecialization("");
-      setLicense("");
-      setPassword("");
-      setConfirmPassword("");
     };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-5">
 
-      <div className="bg-white rounded-2xl w-full max-w-4xl p-8 shadow-2xl">
-
+      <div className="bg-white w-full max-w-6xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
 
-        <div className="flex justify-between items-center border-b pb-4">
+        <div className="bg-gradient-to-r from-cyan-600 to-blue-700 text-white px-8 py-5 flex justify-between items-center">
 
-          <h2 className="text-2xl font-bold text-gray-800">
-            Register New Doctor
-          </h2>
+    <div>
+        <h1 className="text-2xl font-bold">
+          {isEdit ? "Edit Doctor" : "Register New Doctor"}
+        </h1>
 
-          <button
-            onClick={onClose}
-            className="text-3xl text-gray-500 hover:text-red-500"
-          >
-            ×
-          </button>
+        <p className="text-blue-100 text-sm">
+          {isEdit
+            ? "Update doctor information"
+            : "Create a new doctor account"}
+        </p>
+      </div>
 
-        </div>
+      <button
+        onClick={() =>{
+          resetForm();
+          onClose();
+        }}
+        className="hover:bg-white/20 p-2 rounded-full transition"
+      >
+        <X size={28} />
+      </button>
+
+    </div>
 
         {/* Form */}
 
-        <div className="grid grid-cols-2 gap-5 mt-6">
+      <div className="px-10 py-8 max-h-[80vh] overflow-y-auto">
+
+      <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
 
           <div>
             <label className="block text-sm font-medium mb-2">
@@ -104,7 +166,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               type="text"
               value={doctorId}
               disabled
-              className="w-full border rounded-lg px-4 py-3 bg-gray-100"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -117,7 +179,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               type="email"
               value={email}
               disabled
-              className="w-full border rounded-lg px-4 py-3 bg-gray-100"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -131,7 +193,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="Enter first name"
-              className="w-full border rounded-lg px-4 py-3"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -145,7 +207,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               placeholder="Enter last name"
-              className="w-full border rounded-lg px-4 py-3"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -159,7 +221,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="07XXXXXXXX"
-              className="w-full border rounded-lg px-4 py-3"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -173,7 +235,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               value={nic}
               onChange={(e) => setNic(e.target.value)}
               placeholder="Enter NIC"
-              className="w-full border rounded-lg px-4 py-3"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -185,7 +247,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
             <select
               value={specialization}
               onChange={(e) => setSpecialization(e.target.value)}
-              className="w-full border rounded-lg px-4 py-3"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Specialization</option>
               <option value="Cardiologist">Cardiologist</option>
@@ -206,7 +268,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               value={license}
               onChange={(e) => setLicense(e.target.value)}
               placeholder="SLMC12345"
-              className="w-full border rounded-lg px-4 py-3"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -219,7 +281,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded-lg px-4 py-3"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -232,18 +294,23 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border rounded-lg px-4 py-3"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
           </div>
 
         </div>
 
         {/* Buttons */}
 
-        <div className="flex justify-end gap-4 mt-8">
+        <div className="border-t bg-gray-50 px-8 py-5 flex justify-end gap-4">
 
           <button
-            onClick={onClose}
+            onClick={() => {
+              resetForm();
+              onClose();
+            }}
             className="px-6 py-3 rounded-lg border"
           >
             Cancel
@@ -251,9 +318,9 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, }) 
 
           <button
             onClick={handleRegister}
-            className="px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+           className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-700 text-white hover:opacity-90 transition"
           >
-            Register Doctor
+            {isEdit ? "Save Changes" : "Register Doctor"}
           </button>
 
         </div>

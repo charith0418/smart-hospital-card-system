@@ -4,31 +4,60 @@ import AdminSidebar from "../components/AdminSidebar";
 import AdminNavbar from "../components/AdminNavebar";
 import DoctorModal from "../components/doctors/DoctorModal";
 import DoctorTable from "../components/doctors/DoctorTable";
+import ViewDoctorModal from "../components/doctors/ViewDoctorModal";
 
 export default function Doctors() {
   const [doctors, setDoctors] = useState([
     {
-      id: 1,
-      doctorId: "DOC0001",name: "Dr. Nimal Perera",specialization: "Cardiologist",email: "doc0001@dr.mh.ac.lk",phone: "0712345678",
+      id: 1,doctorId: "DOC0001",name: "Dr. Nimal Perera",specialization: "Cardiologist",email: "doc0001@dr.mh.ac.lk",phone: "0712345678",nic: "199812345678",license: "SLMC10001",
     },
     {
-      id: 2,doctorId: "DOC0002",name: "Dr. Kasun Silva",specialization: "Neurologist",email: "doc0002@dr.mh.ac.lk",phone: "0771234567",
+      id: 2,doctorId: "DOC0002",name: "Dr. Kasun Silva",specialization: "Neurologist",email: "doc0002@dr.mh.ac.lk",phone: "0771234567",nic: "199812345678",license: "SLMC10002",
     },
     {
-      id: 3,doctorId: "DOC0003",name: "Dr. Sachini Fernando",specialization: "Dermatologist",email: "doc0003@dr.mh.ac.lk",phone: "0769876543",
+      id: 3,doctorId: "DOC0003",name: "Dr. Sachini Fernando",specialization: "Dermatologist",email: "doc0003@dr.mh.ac.lk",phone: "0769876543",nic: "199812345678",license: "SLMC10003",
     },
     {
-      id: 4,doctorId: "DOC0004",name: "Dr. Sachini Fernando",specialization: "Dermatologist",email: "doc0004@dr.mh.ac.lk",phone: "0769876543",
+      id: 4,doctorId: "DOC0004",name: "Dr. Sachini Fernando",specialization: "Dermatologist",email: "doc0004@dr.mh.ac.lk",phone: "0769876543",nic: "199812345678",license: "SLMC10004",
     },
   ]);
 
   const [openModal, setOpenModal] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [editDoctor, setEditDoctor] = useState(null);
+  
 
   const totalDoctors = doctors.length;
-
+  
   // Add new doctor
   const addDoctor = (newDoctor) => {
     setDoctors((prevDoctors) => [...prevDoctors, newDoctor]);
+  };
+
+  //View Doctor
+  const handleView = (doctor) => {
+    setSelectedDoctor(doctor);
+    setViewOpen(true);
+    };
+
+  //Edit Doctor
+  const handleEdit = (doctor) => {
+    setEditDoctor(doctor);
+    setIsEdit(true);
+    setOpenModal(true);
+  };
+
+  //update Doctor Values
+  const updateDoctor = (updatedDoctor) => {
+    setDoctors((prevDoctors) =>
+      prevDoctors.map((doctor) =>
+        doctor.id === updatedDoctor.id
+          ? updatedDoctor
+          : doctor
+      )
+    );
   };
 
   return (
@@ -83,15 +112,35 @@ export default function Doctors() {
         </div>
 
         {/* Doctor Table */}
-        <DoctorTable doctors={doctors} />
+        <DoctorTable
+          doctors={doctors}
+          onView={handleView}
+          onEdit={handleEdit}
+        />
+
       </main>
 
-      {/* Add Doctor Modal */}
+      {/* Add Doctor Modal and Edit*/}
       <DoctorModal
         open={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={() => {
+          setOpenModal(false);
+          setIsEdit(false);
+          setEditDoctor(null);
+        }}
         addDoctor={addDoctor}
+        updateDoctor={updateDoctor}
         doctorCount={doctors.length}
+        isEdit={isEdit}
+        doctor={editDoctor}
+      />
+      <ViewDoctorModal
+        open={viewOpen}
+        doctor={selectedDoctor}
+        onClose={() => {
+          setViewOpen(false);
+          setSelectedDoctor(null);
+        }}
       />
     </div>
   );
