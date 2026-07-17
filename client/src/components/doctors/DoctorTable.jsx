@@ -1,12 +1,35 @@
-export default function DoctorTable({ doctors, onView,onEdit }) {
+import { useState } from "react";
+
+export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onDelete, }) {
+
+    const [deleteDoctor, setDeleteDoctor] = useState(null);
+
   return (
     <div className="mt-8 bg-white rounded-2xl shadow overflow-hidden">
 
-      <div className="px-6 py-5 border-b">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Doctor List
+      <div className="px-6 py-5 border-b flex justify-between items-center">
+
+    <div>
+        <h2 className="text-2xl font-bold text-gray-800">
+            Doctor List
         </h2>
-      </div>
+
+        <p className="text-gray-500 text-sm">
+            Manage registered doctors
+        </p>
+    </div>
+
+    <div className="flex items-center gap-4 bg-blue-50 border border-blue-200 rounded-xl px-6 py-4">
+
+        <div>
+            <h2 className="text-xl text-blue-700">
+                 Total Doctors {doctors.length}
+            </h2>
+        </div>
+
+    </div>
+
+</div>
 
       <div className="overflow-x-auto">
 
@@ -79,8 +102,11 @@ export default function DoctorTable({ doctors, onView,onEdit }) {
                         Edit
                     </button>
 
-                    <button className="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200">
-                      Delete
+                    <button
+                    onClick={() => setDeleteDoctor(doctor)}
+                    className="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200"
+                    >
+                        Delete
                     </button>
 
                   </div>
@@ -96,6 +122,50 @@ export default function DoctorTable({ doctors, onView,onEdit }) {
         </table>
 
       </div>
+
+        {/* Delete Docter popup */}
+        {deleteDoctor && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+                <div className="bg-white rounded-2xl p-8 w-[420px] shadow-xl">
+
+                <h2 className="text-2xl font-bold text-red-600">
+                    Delete Doctor
+                </h2>
+
+                <p className="text-gray-600 mt-3">
+                    Are you sure you want to delete
+                    <span className="font-semibold">
+                    {" "}{deleteDoctor.name}
+                    </span>
+                    ?
+                </p>
+
+                <div className="flex justify-end gap-3 mt-8">
+
+                    <button
+                    onClick={() => setDeleteDoctor(null)}
+                    className="px-5 py-2 border rounded-lg"
+                    >
+                    Cancel
+                    </button>
+
+                    <button
+                    onClick={() => {
+                        onDelete(deleteDoctor.id);
+                        setDeleteDoctor(null);
+                    }}
+                    className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                    Delete
+                    </button>
+
+                </div>
+
+                </div>
+
+            </div>
+        )}
 
     </div>
   );

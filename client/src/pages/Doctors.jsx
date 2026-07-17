@@ -60,6 +60,13 @@ export default function Doctors() {
     );
   };
 
+  //Delete Doctor
+  const deleteDoctor = (id) => {
+    setDoctors((prevDoctors) =>
+      prevDoctors.filter((doctor) => doctor.id !== id)
+    );
+  };
+
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
@@ -100,22 +107,15 @@ export default function Doctors() {
               className="w-full md:w-80 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
-            <div className="bg-white rounded-xl shadow p-5">
-              <p className="text-gray-500 text-sm">Total Doctors</p>
-              <h2 className="text-3xl font-bold mt-2">
-                {totalDoctors}
-              </h2>
-            </div>
-          </div>
         </div>
 
         {/* Doctor Table */}
         <DoctorTable
           doctors={doctors}
+          totalDoctors={doctors.length}
           onView={handleView}
           onEdit={handleEdit}
+          onDelete={deleteDoctor}
         />
 
       </main>
