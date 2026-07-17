@@ -59,65 +59,67 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
             </tr>
           </thead>
 
-          <tbody>
+        <tbody>
+            
+            {doctors.length > 0 ? (
+                doctors.map((doctor) => (
+                <tr
+                    key={doctor.id}
+                    className="border-b hover:bg-gray-50 transition"
+                >
+                    <td className="px-6 py-4 font-medium">
+                    {doctor.doctorId}
+                    </td>
 
-            {doctors.map((doctor) => (
+                    <td className="px-6 py-4">
+                    {doctor.name}
+                    </td>
 
-              <tr
-                key={doctor.id}
-                className="border-b hover:bg-gray-50 transition"
-              >
+                    <td className="px-6 py-4">
+                    {doctor.specialization}
+                    </td>
 
-                <td className="px-6 py-4 font-medium">
-                  {doctor.doctorId}
-                </td>
+                    <td className="px-6 py-4">
+                    {doctor.phone}
+                    </td>
 
-                <td className="px-6 py-4">
-                  {doctor.name}
-                </td>
-
-                <td className="px-6 py-4">
-                  {doctor.specialization}
-                </td>
-
-                <td className="px-6 py-4">
-                  {doctor.phone}
-                </td>
-
-                <td className="px-6 py-4">
-
-                  <div className="flex justify-center gap-2">
-
-                    <button
-                    onClick={() => onView(doctor)}
-                    className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200"
-                    >
+                    <td className="px-6 py-4">
+                    <div className="flex justify-center gap-2">
+                        <button
+                        onClick={() => onView(doctor)}
+                        className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200"
+                        >
                         View
-                    </button>
+                        </button>
 
-                    <button
+                        <button
                         onClick={() => onEdit(doctor)}
                         className="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                    >
+                        >
                         Edit
-                    </button>
+                        </button>
 
-                    <button
-                    onClick={() => setDeleteDoctor(doctor)}
-                    className="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200"
-                    >
+                        <button
+                        onClick={() => setDeleteDoctor(doctor)}
+                        className="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200"
+                        >
                         Delete
-                    </button>
-
-                  </div>
-
+                        </button>
+                    </div>
+                    </td>
+                </tr>
+                ))
+            ) : (
+                <tr>
+                <td
+                    colSpan="5"
+                    className="text-center py-10 text-gray-500 text-lg"
+                >
+                    No doctors found.
                 </td>
-
-              </tr>
-
-            ))}
-
-          </tbody>
+                </tr>
+            )}
+        </tbody>
 
         </table>
 

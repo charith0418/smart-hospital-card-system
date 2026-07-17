@@ -5,17 +5,17 @@ import {
 }from "lucide-react";
 
 
-export default function DoctorModal({ open, onClose, addDoctor, doctorCount, isEdit, doctor, updateDoctor }) {
+export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, isEdit, doctor, updateDoctor }) {
 
  
-
+  //Auto genarate email and Id
   const doctorId = isEdit
     ? doctor?.doctorId
-    : `DOC${String(doctorCount + 1).padStart(4, "0")}`;
+    : nextDoctorId;
 
   const email = isEdit
     ? doctor?.email
-    : `${doctorId.toLowerCase()}@dr.mh.ac.lk`;
+    : `doc${doctorId.replace("DOC/", "").toLowerCase()}@dr.mh.ac.lk`;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -70,7 +70,6 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, isE
 
 
       updateDoctor(updatedDoctor);
-
       resetForm();
       onClose();
 
@@ -101,7 +100,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, isE
 
       // Create doctor object
       const newDoctor = {
-        id: doctorCount + 1,
+        id: Date.now(),
         doctorId,
         name: `Dr. ${firstName} ${lastName}`,
         specialization,
@@ -151,7 +150,7 @@ export default function DoctorModal({ open, onClose, addDoctor, doctorCount, isE
 
     </div>
 
-        {/* Form */}
+      {/* Form */}
 
       <div className="px-10 py-8 max-h-[80vh] overflow-y-auto">
 

@@ -9,16 +9,16 @@ import ViewDoctorModal from "../components/doctors/ViewDoctorModal";
 export default function Doctors() {
   const [doctors, setDoctors] = useState([
     {
-      id: 1,doctorId: "DOC0001",name: "Dr. Nimal Perera",specialization: "Cardiologist",email: "doc0001@dr.mh.ac.lk",phone: "0712345678",nic: "199812345678",license: "SLMC10001",
+      id: 1,doctorId: "DOC/0001",name: "Dr. Nimal Perera",specialization: "Cardiologist",email: "doc0001@dr.mh.ac.lk",phone: "0712345678",nic: "199812345678",license: "SLMC10001",
     },
     {
-      id: 2,doctorId: "DOC0002",name: "Dr. Kasun Silva",specialization: "Neurologist",email: "doc0002@dr.mh.ac.lk",phone: "0771234567",nic: "199812345678",license: "SLMC10002",
+      id: 2,doctorId: "DOC/0002",name: "Dr. Kasun Silva",specialization: "Neurologist",email: "doc0002@dr.mh.ac.lk",phone: "0771234567",nic: "199812345678",license: "SLMC10002",
     },
     {
-      id: 3,doctorId: "DOC0003",name: "Dr. Sachini Fernando",specialization: "Dermatologist",email: "doc0003@dr.mh.ac.lk",phone: "0769876543",nic: "199812345678",license: "SLMC10003",
+      id: 3,doctorId: "DOC/0003",name: "Dr. Sachini Fernando",specialization: "Dermatologist",email: "doc0003@dr.mh.ac.lk",phone: "0769876543",nic: "199812345678",license: "SLMC10003",
     },
     {
-      id: 4,doctorId: "DOC0004",name: "Dr. Sachini Fernando",specialization: "Dermatologist",email: "doc0004@dr.mh.ac.lk",phone: "0769876543",nic: "199812345678",license: "SLMC10004",
+      id: 4,doctorId: "DOC/0004",name: "Dr. Sachini Fernando",specialization: "Dermatologist",email: "doc0004@dr.mh.ac.lk",phone: "0769876543",nic: "199812345678",license: "SLMC10004",
     },
   ]);
 
@@ -27,8 +27,11 @@ export default function Doctors() {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [editDoctor, setEditDoctor] = useState(null);
-  
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
+
+  const doctorsPerPage = 5;
   const totalDoctors = doctors.length;
   
   // Add new doctor
@@ -67,6 +70,39 @@ export default function Doctors() {
     );
   };
 
+//Auto genarate Id and email
+  const getNextDoctorId = () => {
+    if (doctors.length === 0) {
+      return "DOC/0001";
+    }
+
+    const maxNumber = Math.max(
+      ...doctors.map((doctor) =>
+        Number(doctor.doctorId.replace("DOC/", ""))
+      )
+    );
+
+    return `DOC/${String(maxNumber + 1).padStart(4, "0")}`;
+  };
+
+  //Filter Doctor
+  const filteredDoctors = doctors.filter((doctor) =>
+    doctor.doctorId.toLowerCase().includes(search.toLowerCase()) ||
+    doctor.name.toLowerCase().includes(search.toLowerCase()) ||
+    doctor.specialization.toLowerCase().includes(search.toLowerCase())
+  );
+
+  //Pagination Logic
+  const indexOfLastDoctor = currentPage * doctorsPerPage;
+  const indexOfFirstDoctor = indexOfLastDoctor - doctorsPerPage;
+
+  const currentDoctors = filteredDoctors.slice(
+    indexOfFirstDoctor,
+    indexOfLastDoctor
+  );
+
+  const totalPages = Math.ceil(filteredDoctors.length / doctorsPerPage);
+
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
@@ -103,20 +139,64 @@ export default function Doctors() {
           <div className="flex justify-between">
             <input
               type="text"
-              placeholder="Search doctor..."
-              className="w-full md:w-80 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Search by ID, Name or Specialization..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full md:w-96 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         {/* Doctor Table */}
         <DoctorTable
-          doctors={doctors}
+          doctors={currentDoctors}
           totalDoctors={doctors.length}
           onView={handleView}
           onEdit={handleEdit}
           onDelete={deleteDoctor}
         />
+
+        {/* Pagination Buttons */}
+        <div className="flex justify-between items-center mt-6">
+
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            className="px-4 py-2 rounded-lg bg-gray-200 disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <div className="flex gap-2">
+
+            {[...Array(totalPages)].map((_, index) => (
+
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`w-10 h-10 rounded-lg ${
+                  currentPage === index + 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                {index + 1}
+              </button>
+
+            ))}
+
+          </div>
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+            className="px-4 py-2 rounded-lg bg-gray-200 disabled:opacity-50"
+          >
+            Next
+          </button>
+
+        </div>
+
 
       </main>
 
@@ -130,7 +210,7 @@ export default function Doctors() {
         }}
         addDoctor={addDoctor}
         updateDoctor={updateDoctor}
-        doctorCount={doctors.length}
+        nextDoctorId={getNextDoctorId()}
         isEdit={isEdit}
         doctor={editDoctor}
       />
