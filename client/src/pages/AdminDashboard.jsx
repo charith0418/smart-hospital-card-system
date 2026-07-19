@@ -36,8 +36,8 @@ export default function AdminDashboard() {
       doctors: 85,
       doctorsGrowth: "+5%",
 
-      staff: 120,
-      staffGrowth: "+8%",
+      doctor: 120,
+      doctorGrowth: "+8%",
 
     },
 
@@ -178,9 +178,9 @@ export default function AdminDashboard() {
 
 
           <StatCard
-            title="Staff"
-            value={dashboard.stats.staff}
-            change={dashboard.stats.staffGrowth}
+            title="Doctors"
+            value={dashboard.stats.doctors}
+            change={dashboard.stats.doctorsGrowth}
             icon={<FaUserNurse />}
           />
 

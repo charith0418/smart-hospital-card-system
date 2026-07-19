@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onDelete, }) {
+export default function StaffTable({ staff, totalStaff, onView, onEdit, onDelete, }) {
 
-    const [deleteDoctor, setDeleteDoctor] = useState(null);
+    const [deleteStaff, setDeleteStaff] = useState(null);
 
   return (
     <div className="mt-8 bg-white rounded-2xl shadow overflow-hidden">
@@ -11,11 +11,11 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
 
     <div>
         <h2 className="text-2xl font-bold text-gray-800">
-            Doctor List
+            Staff List
         </h2>
 
         <p className="text-gray-500 text-sm">
-            Manage registered doctors
+            Manage registered staff
         </p>
     </div>
 
@@ -23,7 +23,7 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
 
         <div>
             <h2 className="text-xl text-blue-700">
-                 Total Doctors {totalDoctors}
+                 Total Staff {totalStaff}
             </h2>
         </div>
 
@@ -38,7 +38,7 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
           <thead className="bg-blue-100">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                Doctor ID
+                Staff ID
               </th>
 
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
@@ -46,7 +46,7 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
               </th>
 
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                Specialization
+                Role
               </th>
 
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
@@ -60,46 +60,46 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
           </thead>
 
           <tbody>
-            {doctors.length > 0 ? (
-                doctors.map((doctor) => (
+            {staff.length > 0 ? (
+                staff.map((staff) => (
                 <tr
-                    key={doctor.id}
+                    key={staff.id}
                     className="border-b hover:bg-gray-50 transition"
                 >
                     <td className="px-6 py-4 font-medium">
-                    {doctor.doctorId}
+                    {staff.staffId}
                     </td>
 
                     <td className="px-6 py-4">
-                    {doctor.name}
+                    {staff.name}
                     </td>
 
                     <td className="px-6 py-4">
-                    {doctor.specialization}
+                    {staff.role}
                     </td>
 
                     <td className="px-6 py-4">
-                    {doctor.phone}
+                    {staff.phone}
                     </td>
 
                     <td className="px-6 py-4">
                     <div className="flex justify-center gap-2">
                         <button
-                        onClick={() => onView(doctor)}
+                        onClick={() => onView(staff)}
                         className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200"
                         >
                         View
                         </button>
 
                         <button
-                        onClick={() => onEdit(doctor)}
+                        onClick={() => onEdit(staff)}
                         className="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
                         >
                         Edit
                         </button>
 
                         <button
-                        onClick={() => setDeleteDoctor(doctor)}
+                        onClick={() => setDeleteStaff(staff)}
                         className="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200"
                         >
                         Delete
@@ -114,7 +114,7 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
                     colSpan="5"
                     className="text-center py-10 text-gray-500 text-lg"
                 >
-                    No doctors found.
+                    No staff found.
                 </td>
                 </tr>
             )}
@@ -124,20 +124,20 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
 
       </div>
 
-        {/* Delete Doctor popup */}
-        {deleteDoctor && (
+        {/* Delete Staff popup */}
+        {deleteStaff && (
             <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
                 <div className="bg-white rounded-2xl p-8 w-[420px] shadow-xl">
 
                 <h2 className="text-2xl font-bold text-red-600">
-                    Delete Doctor
+                    Delete Staff
                 </h2>
 
                 <p className="text-gray-600 mt-3">
                     Are you sure you want to delete
                     <span className="font-semibold">
-                    {" "}{deleteDoctor.name}
+                    {" "}{deleteStaff.name}
                     </span>
                     ?
                 </p>
@@ -145,7 +145,7 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
                 <div className="flex justify-end gap-3 mt-8">
 
                     <button
-                    onClick={() => setDeleteDoctor(null)}
+                    onClick={() => setDeleteStaff(null)}
                     className="px-5 py-2 border rounded-lg"
                     >
                     Cancel
@@ -153,8 +153,8 @@ export default function DoctorTable({ doctors, totalDoctors, onView, onEdit, onD
 
                     <button
                     onClick={() => {
-                        onDelete(deleteDoctor.id);
-                        setDeleteDoctor(null);
+                        onDelete(deleteStaff.id);
+                        setDeleteStaff(null);
                     }}
                     className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                     >

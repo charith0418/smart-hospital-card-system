@@ -5,40 +5,38 @@ import {
 }from "lucide-react";
 
 
-export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, isEdit, doctor, updateDoctor }) {
+export default function StaffModal({ open, onClose, addStaff, nextStaffId, isEdit, staff, updateStaff }) {
 
  
   //Auto genarate email and Id
-  const doctorId = isEdit
-    ? doctor?.doctorId
-    : nextDoctorId;
+  const staffId = isEdit
+    ? staff?.staffId
+    : nextStaffId;
 
   const email = isEdit
-    ? doctor?.email
-    : `doc${doctorId.replace("DOC/", "").toLowerCase()}@dr.mh.ac.lk`;
+    ? staff?.email
+    : `stf${staffId.replace("STF/", "").toLowerCase()}@dr.mh.ac.lk`;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [nic, setNic] = useState("");
-  const [specialization, setSpecialization] = useState("");
-  const [license, setLicense] = useState("");
+  const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-   //Edit doctor
+   //Edit staff
       useEffect(() => {
-        if (isEdit && doctor) {
-          const names = doctor.name.replace("Dr. ", "").split(" ");
+        if (isEdit && staff) {
+          const names = staff.name.split(" ");
 
           setFirstName(names[0] || "");
           setLastName(names[1] || "");
-          setPhone(doctor.phone || "");
-          setNic(doctor.nic || "");
-          setSpecialization(doctor.specialization || "");
-          setLicense(doctor.license || "");
+          setPhone(staff.phone || "");
+          setNic(staff.nic || "");
+          setRole(staff.role || "");
         }
-      }, [doctor, isEdit]);
+      }, [staff, isEdit]);
 
        if (!open) return null;
 
@@ -47,8 +45,7 @@ export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, is
     setLastName("");
     setPhone("");
     setNic("");
-    setSpecialization("");
-    setLicense("");
+    setRole("");
     setPassword("");
     setConfirmPassword("");
   };
@@ -57,19 +54,18 @@ export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, is
 
     if (isEdit) {
 
-      const updatedDoctor = {
-        id: doctor.id,
-        doctorId: doctor.doctorId,
-        name: `Dr. ${firstName} ${lastName}`,
-        specialization,
-        email: doctor.email,
+      const updatedStaff = {
+        id: staff.id,
+        staffId: staff.staffId,
+        name: `${firstName} ${lastName}`,
+        role,
+        email: staff.email,
         phone,
         nic,
-        license,
       };
 
 
-      updateDoctor(updatedDoctor);
+      updateStaff(updatedStaff);
       resetForm();
       onClose();
 
@@ -83,8 +79,7 @@ export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, is
         !lastName ||
         !phone ||
         !nic ||
-        !specialization ||
-        !license ||
+        !role ||
         !password ||
         !confirmPassword
       ) {
@@ -98,20 +93,19 @@ export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, is
         return;
       }
 
-      // Create doctor object
-      const newDoctor = {
+      // Create staff object
+      const newStaff = {
         id: Date.now(),
-        doctorId,
-        name: `Dr. ${firstName} ${lastName}`,
-        specialization,
+        staffId,
+        name: `${firstName} ${lastName}`,
+        role,
         email,
         phone,
         nic,
-        license,
       };
 
-      // Send doctor to Doctors.jsx
-      addDoctor(newDoctor);
+      // Send staff to Staff.jsx
+      addStaff(newStaff);
 
       // Close popup
       resetForm();
@@ -128,13 +122,13 @@ export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, is
 
     <div>
         <h1 className="text-2xl font-bold">
-          {isEdit ? "Edit Doctor" : "Register New Doctor"}
+          {isEdit ? "Edit Staff" : "Register New Staff"}
         </h1>
 
         <p className="text-blue-100 text-sm">
           {isEdit
-            ? "Update doctor information"
-            : "Create a new doctor account"}
+            ? "Update staff information"
+            : "Create a new staff account"}
         </p>
       </div>
 
@@ -158,12 +152,12 @@ export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, is
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              Doctor ID
+              Staff ID
             </label>
 
             <input
               type="text"
-              value={doctorId}
+              value={staffId}
               disabled
               className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -240,35 +234,20 @@ export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, is
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              Specialization
+              Role
             </label>
 
             <select
-              value={specialization}
-              onChange={(e) => setSpecialization(e.target.value)}
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select Specialization</option>
-              <option value="Cardiologist">Cardiologist</option>
-              <option value="Neurologist">Neurologist</option>
-              <option value="Dermatologist">Dermatologist</option>
-              <option value="Pediatrician">Pediatrician</option>
-              <option value="Dentist">Dentist</option>
+              <option value="">Select Role</option>
+              <option value="Nurse">Nurse</option>
+              <option value="Receptionist">Receptionist</option>
+              <option value="Lab Technician">Lab Technician</option>
+              <option value="Pharmacist">Pharmacist</option>
             </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Medical License No.
-            </label>
-
-            <input
-              type="text"
-              value={license}
-              onChange={(e) => setLicense(e.target.value)}
-              placeholder="SLMC12345"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
           </div>
 
           <div>
@@ -319,7 +298,7 @@ export default function DoctorModal({ open, onClose, addDoctor, nextDoctorId, is
             onClick={handleRegister}
            className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-700 text-white hover:opacity-90 transition"
           >
-            {isEdit ? "Save Changes" : "Register Doctor"}
+            {isEdit ? "Save Changes" : "Register Staff"}
           </button>
 
         </div>
