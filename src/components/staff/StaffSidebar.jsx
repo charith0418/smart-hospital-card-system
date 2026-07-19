@@ -7,11 +7,11 @@ import { MdOutlineDashboardCustomize, MdLogout, MdLibraryBooks } from "react-ico
 import { FaHospitalUser } from "react-icons/fa";
 import { BiQrScan } from "react-icons/bi";
 
-import RegistrationPatient from "./RegistrationPatient";
-import StaffDashboard from "./StaffDashboard";
-import Patients from "./Patients";
-import PrintCard from "./PrintCard";
-import HospitalInventory from "./HospitalInventory"; 
+import RegistrationPatient from "../staff/RegistrationPatient";
+import StaffDashboard from "../staff/StaffDashboard";
+import Patients from "../staff/Patients";
+import PrintCard from "../staff/PrintCard";
+import HospitalInventory from "../staff/HospitalInventory"; 
 
 const StaffSidebar = ({ onLogout }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);

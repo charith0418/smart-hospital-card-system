@@ -1,11 +1,11 @@
-import StaffSidebar from "../components/staff/StaffSidebar";
-import RegisterationPatient from "../components/staff/RegistrationPatient";
-import StaffDashboard from "../components/staff/StaffDashboard";
-import Patients from "../components/staff/Patients";
-import ScanQR from "../components/staff/ScanQR";
-import Reports from "../components/staff/Reports";
-import Treatments from "../components/staff/Treatments";
-import Prescriptions from "../components/staff/Prescription";
+import StaffSidebar from "../components/StaffSidebar";
+import RegisterationPatient from "../components/RegistrationPatient";
+import StaffDashboard from "../components/StaffDashboard";
+import Patients from "../components/Patients";
+import ScanQR from "../components/ScanQR";
+import Reports from "../components/Reports";
+import Treatments from "../components/Treatments";
+import Prescriptions from "../components/Prescription";
 
 function Staff() {
   return (

@@ -3,63 +3,13 @@ import { FaSearch, FaEye, FaUserEdit, FaTimes } from 'react-icons/fa';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
-const DUMMY_PATIENTS = [
-  {
-    patientId: "PT-8392",
-    fullName: "Eleanor Vance",
-    dob: "1994-08-12",
-    bloodGroup: "A+",
-    lastVisit: "2026-07-10",
-    phone: "+1 (555) 234-5678",
-    email: "eleanor.v@example.com",
-    address: "742 Evergreen Terrace, Springfield"
-  },
-  {
-    patientId: "PT-2048",
-    fullName: "Marcus Sterling",
-    dob: "1981-11-23",
-    bloodGroup: "O-",
-    lastVisit: "2026-06-28",
-    phone: "+1 (555) 876-5432",
-    email: "m.sterling@example.com",
-    address: "104 Baker St, London"
-  },
-  {
-    patientId: "PT-5712",
-    fullName: "Amara Patel",
-    dob: "2003-01-15",
-    bloodGroup: "B+",
-    lastVisit: "2026-07-02",
-    phone: "+1 (555) 456-7890",
-    email: "amara.patel@example.com",
-    address: "456 Oak Avenue, Maplewood"
-  },
-  {
-    patientId: "PT-9401",
-    fullName: "Liam Nilsson",
-    dob: "1965-04-30",
-    bloodGroup: "AB-",
-    lastVisit: "2026-05-14",
-    phone: "+1 (555) 987-6543",
-    email: "liam.nilsson@example.com",
-    address: "89 Pine Boulevard, Seattle"
-  },
-  {
-    patientId: "PT-3110",
-    fullName: "Clara Zhang",
-    dob: "1991-12-05",
-    bloodGroup: "O+",
-    lastVisit: "2026-07-12",
-    phone: "+1 (555) 321-7654",
-    email: "clara.z@example.com",
-    address: "12 Cherry Lane, San Francisco"
-  }
-];
-
 const calculateAge = (dob) => {
   if (!dob) return 'N/A';
-  const diff = Date.now() - new Date(dob).getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+  // Replace hyphens with forward slashes for cross-browser Safari/Firefox compatibility
+  const sanitizedDob = dob.replace(/-/g, '/');
+  const diff = Date.now() - new Date(sanitizedDob).getTime();
+  const age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+  return age >= 0 ? age : 0;
 };
 
 const Patients = () => {
@@ -70,16 +20,42 @@ const Patients = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [editPatient, setEditPatient] = useState(null);
 
+  // Fetch real data directly from the Mongoose backend database with Auth Headers
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/patients`);
-        if (!response.ok) throw new Error("API not responding");
+        const token = localStorage.getItem('token'); 
+        
+        const response = await fetch(`${API_BASE_URL}/patients`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          }
+        });
+
+        if (!response.ok) throw new Error("API not responding or unauthorized");
         const data = await response.json();
-        setPatients(data.length > 0 ? data : DUMMY_PATIENTS);
+        
+        if (data && data.length > 0) {
+          const formattedPatients = data.map(p => ({
+            _id: p._id, 
+            patientId: p.patientId || "N/A",
+            fullName: p.fullName || "Unnamed Patient",
+            dob: p.dob ? p.dob.split('T')[0] : "", 
+            bloodGroup: p.bloodGroup || "N/A",
+            phone: p.phone || "N/A",
+            address: p.address || "N/A",
+            email: p.email || p.user?.email || "No email provided",
+            lastVisit: p.updatedAt || p.lastVisit || new Date().toISOString()
+          }));
+          setPatients(formattedPatients);
+        } else {
+          setPatients([]); 
+        }
       } catch (error) {
-        console.warn('Using fallback dummy data:', error);
-        setPatients(DUMMY_PATIENTS);
+        console.error('Error fetching database records:', error);
+        setPatients([]); 
       } finally {
         setLoading(false);
       }
@@ -87,23 +63,56 @@ const Patients = () => {
     fetchPatients();
   }, []);
 
+  // Filter real records based on user search query matching
   const filtered = patients.filter(p =>
-    p.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.patientId.toLowerCase().includes(searchQuery.toLowerCase())
+    (p.fullName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.patientId || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleEditSubmit = (e) => {
+  // Submit updates to persist changes into MongoDB storage with Auth Headers
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    setPatients(prev => prev.map(p => p.patientId === editPatient.patientId ? editPatient : p));
-    setEditPatient(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/patients/${editPatient._id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          fullName: editPatient.fullName,
+          bloodGroup: editPatient.bloodGroup,
+          phone: editPatient.phone,
+          dob: editPatient.dob,
+          address: editPatient.address
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to update profile values on backend");
+
+      // Update state array
+      setPatients(prev => prev.map(p => p._id === editPatient._id ? editPatient : p));
+      
+      // Update details modal if currently viewing the modified patient
+      if (selectedPatient && selectedPatient._id === editPatient._id) {
+        setSelectedPatient(editPatient);
+      }
+
+      setEditPatient(null);
+    } catch (err) {
+      console.error("Failed saving edits:", err);
+      alert("Error saving record adjustments to backend server.");
+    }
   };
 
   return (
     <div className="space-y-6 w-full text-[#1e293b]">
-      
       {/* Search Header Area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-        <div className="w-full max-w-md bg-white p-3 rounded-2xl shadow-xs border border-slate-200 flex items-center focus-within:border-[#078a72] focus-within:ring-2 focus-within:ring-[#078a72]/10 transition-all">
+        <div className="w-full max-w-md bg-white p-3 rounded-2xl border border-slate-200 flex items-center focus-within:border-[#078a72] focus-within:ring-2 focus-within:ring-[#078a72]/10 transition-all">
           <div className="text-slate-400 px-3 text-lg"><FaSearch /></div>
           <input
             type="text"
@@ -118,7 +127,7 @@ const Patients = () => {
         </div>
       </div>
 
-      {/* Main Table Card (Full Screen) */}
+      {/* Main Table Card */}
       <div className="w-full bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
         <div className="overflow-x-auto">
           {loading ? (
@@ -128,7 +137,7 @@ const Patients = () => {
             </div>
           ) : filtered.length === 0 ? (
             <div className="p-20 text-center">
-              <p className="text-slate-400 font-semibold text-lg">No patients match your search criteria.</p>
+              <p className="text-slate-400 font-semibold text-lg">No registered patients found matching your search.</p>
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
@@ -144,12 +153,13 @@ const Patients = () => {
               </thead>
               <tbody className="text-base divide-y divide-slate-100 font-medium text-slate-700">
                 {filtered.map((p) => (
-                  <tr key={p.patientId} className="hover:bg-slate-50/50 transition-colors">
+                  // FIXED: key assigned to unique Database ID (_id) instead of nullable patientId
+                  <tr key={p._id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="p-6 pl-8 text-[#078a72] font-bold font-mono tracking-tight text-lg">{p.patientId}</td>
                     <td className="p-6">
                       <div>
                         <p className="text-slate-900 font-bold text-lg">{p.fullName}</p>
-                        <p className="text-sm text-slate-400 font-normal mt-0.5">{p.email || 'No email provided'}</p>
+                        <p className="text-sm text-slate-400 font-normal mt-0.5">{p.email}</p>
                       </div>
                     </td>
                     <td className="p-6 text-slate-600 font-semibold text-lg">{calculateAge(p.dob)} Yrs</td>
@@ -187,7 +197,7 @@ const Patients = () => {
         </div>
       </div>
 
-      {/* ==================== VIEW DETAILS MODAL ==================== */}
+      {/* VIEW DETAILS MODAL */}
       {selectedPatient && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
@@ -246,7 +256,7 @@ const Patients = () => {
         </div>
       )}
 
-      {/* ==================== EDIT RECORD MODAL ==================== */}
+      {/* EDIT RECORD MODAL */}
       {editPatient && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <form onSubmit={handleEditSubmit} className="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
@@ -312,6 +322,7 @@ const Patients = () => {
                   value={editPatient.email}
                   onChange={e => setEditPatient(prev => ({ ...prev, email: e.target.value }))}
                   className="w-full mt-1.5 px-4 py-3 rounded-xl border border-slate-200 focus:border-[#078a72] outline-hidden text-base font-semibold text-slate-800"
+                  disabled
                 />
               </div>
 
@@ -343,7 +354,6 @@ const Patients = () => {
           </form>
         </div>
       )}
-
     </div>
   );
 };

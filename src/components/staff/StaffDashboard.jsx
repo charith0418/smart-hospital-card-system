@@ -1,25 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch, FaQrcode, FaFileMedical, FaPrescription, FaUserCheck, FaTimes, FaCalendarAlt, FaStethoscope, FaUserMd, FaClock, FaCapsules, FaPrint, FaPlusSquare, FaPhoneAlt } from 'react-icons/fa';
 
-const mockPatients = [
-  { id: "P10024", name: "John Doe", nic: "199823411542", dob: "1998-05-12", gender: "Male", phone: "0771234567", bloodGroup: "O+", date: "20 May 2026", img: "https://i.pravatar.cc/150?img=33" },
-  { id: "P10018", name: "Chanchala Madhushani", nic: "199578411234", dob: "1995-11-23", gender: "Female", phone: "0719876543", bloodGroup: "A+", date: "20 May 2026", img: "https://i.pravatar.cc/150?img=47" },
-  { id: "P10011", name: "David Perera", nic: "198812345678", dob: "1988-02-15", gender: "Male", phone: "0765432109", bloodGroup: "B-", date: "19 May 2026", img: "https://i.pravatar.cc/150?img=68" }
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const StaffDashboard = () => {
+  const [patients, setPatients] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showMedicalCards, setShowMedicalCards] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // 1. Fetch live database records automatically on load with Auth headers
+  useEffect(() => {
+    const fetchLiveRecords = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/patients`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) throw new Error("Failed connecting to internal medical API");
+        const data = await response.json();
+        
+        // Match schema outputs cleanly into local state variables
+        const normalized = data.map(p => ({
+          id: p.patientId || p._id.substring(18).toUpperCase(),
+          _id: p._id,
+          name: p.fullName || "Registered Patient",
+          nic: p.nic || "N/A",
+          dob: p.dob ? p.dob.split('T')[0] : "N/A",
+          gender: p.gender || "Not Specified",
+          phone: p.phone || "N/A",
+          bloodGroup: p.bloodGroup || "N/A",
+          date: p.updatedAt ? new Date(p.updatedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : "Recent"
+        }));
+        
+        setPatients(normalized);
+      } catch (err) {
+        console.error("Database connection error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLiveRecords();
+  }, []);
+
+  // 2. Real-time state search filters through database arrays 
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    if (!value.trim()) return setSearchResults([]);
-    setSearchResults(mockPatients.filter(p => 
-      p.name.toLowerCase().includes(value.toLowerCase()) || p.id.toLowerCase().includes(value.toLowerCase())
-    ));
+    
+    if (!value.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    const filtered = patients.filter(p => 
+      p.name.toLowerCase().includes(value.toLowerCase()) || 
+      p.id.toLowerCase().includes(value.toLowerCase()) ||
+      p.nic.toLowerCase().includes(value.toLowerCase())
+    );
+    setSearchResults(filtered);
   };
 
   const handleSelectPatient = (patient) => {
@@ -62,7 +108,7 @@ const StaffDashboard = () => {
             placeholder="Type patient registration ID number, full identity name, or national card numbers..." 
             value={searchQuery}
             onChange={handleSearchChange}
-            className="w-full bg-transparent px-5 py-4 outline-none text-base font-medium placeholder-slate-400 text-slate-950"
+            className="w-full bg-transparent px-5 py-4 outline-hidden text-base font-medium placeholder-slate-400 text-slate-950"
           />
           <button className="bg-[#078a72] hover:bg-[#056b58] text-white px-8 flex items-center justify-center text-lg gap-2 font-bold transition-colors">
             <FaSearch /> <span className="hidden sm:inline text-sm tracking-wide">Search</span>
@@ -75,7 +121,9 @@ const StaffDashboard = () => {
             {searchResults.map((p) => (
               <div key={p.id} onClick={() => handleSelectPatient(p)} className="flex items-center justify-between p-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-none transition">
                 <div className="flex items-center gap-4">
-                  <img src={p.img} alt={p.name} className="w-11 h-11 rounded-full object-cover border border-slate-200" />
+                  <div className="w-11 h-11 rounded-full bg-slate-200 text-[#078a72] flex items-center justify-center font-bold text-lg border border-slate-300">
+                    {p.name.charAt(0)}
+                  </div>
                   <div className="text-left">
                     <h4 className="text-base font-bold text-slate-900">{p.name}</h4>
                     <p className="text-xs text-slate-500 font-mono mt-0.5">{p.id} • NIC Account: {p.nic}</p>
@@ -92,7 +140,9 @@ const StaffDashboard = () => {
       {selectedPatient && (
         <div className="w-full bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn print:hidden">
           <div className="flex items-center gap-4 text-left">
-            <img src={selectedPatient.img} alt={selectedPatient.name} className="w-14 h-14 rounded-full ring-2 ring-emerald-500 object-cover" />
+            <div className="w-14 h-14 rounded-full ring-2 ring-emerald-500 bg-slate-800 text-white flex items-center justify-center font-bold text-xl">
+              {selectedPatient.name.charAt(0)}
+            </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-black text-white tracking-wide">{selectedPatient.name}</h3>
@@ -117,12 +167,9 @@ const StaffDashboard = () => {
       {/* ==================== 4. EXPANDED USER FRIENDLY SMART CARD ==================== */}
       {selectedPatient && !showMedicalCards && (
         <div className="w-full flex flex-col items-center justify-center animate-fadeIn print:p-0">
-          
-          {/* USER-FRIENDLY BIG SIZE ENHANCED CARD */}
           <div id="printable-health-card" className="w-[500px] h-[300px] bg-gradient-to-br from-[#1C4E80] to-[#0A2540] text-white rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden border border-slate-950 transition-all duration-300">
             <div className="absolute -right-4 -top-4 w-44 h-44 bg-white/5 rounded-full pointer-events-none" />
             
-            {/* Card Header */}
             <div className="flex justify-between items-center border-b border-white/10 pb-3 z-10">
               <div className="flex items-center gap-3">
                 <FaPlusSquare className="text-2xl text-emerald-400" />
@@ -134,7 +181,6 @@ const StaffDashboard = () => {
               <span className="bg-red-500/20 text-red-300 border border-red-500/30 font-black text-[10px] px-3 py-1 rounded-md tracking-wide">EMERGENCY DATA</span>
             </div>
 
-            {/* Content Core Body */}
             <div className="flex flex-1 items-center justify-between gap-6 py-4 z-10 text-left">
               <div className="flex-1 space-y-4">
                 <div>
@@ -153,13 +199,11 @@ const StaffDashboard = () => {
                 </div>
               </div>
 
-              {/* Enhanced Size QR Verification Target */}
               <div className="bg-white p-2 rounded-2xl shrink-0 shadow-lg border border-slate-200/20">
                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=0A2540&data=${selectedPatient.id}`} alt="QR Verification" className="w-24 h-24" />
               </div>
             </div>
 
-            {/* Bottom Contact Footnote */}
             <div className="border-t border-white/10 pt-3 flex items-center justify-between z-10 text-xs text-slate-300">
               <div className="flex items-center gap-1.5">
                 <FaPhoneAlt className="text-[10px] text-emerald-400" />
@@ -236,25 +280,37 @@ const StaffDashboard = () => {
       {!selectedPatient && (
         <div className="bg-white p-6 rounded-xl border border-slate-200 w-full text-left print:hidden shadow-xs">
           <h3 className="text-xs font-bold mb-4 text-slate-400 uppercase tracking-wider">Recent Active Sessions</h3>
-          <div className="space-y-2">
-            {mockPatients.map((p) => (
-              <div key={p.id} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-lg border border-transparent hover:border-slate-100 transition-all">
-                <div className="flex items-center gap-3">
-                  <img src={p.img} alt={p.name} className="w-11 h-11 rounded-full object-cover border border-slate-200" />
-                  <div>
-                    <h4 className="text-base font-bold text-slate-800">{p.name}</h4>
-                    <p className="text-xs text-slate-400 font-mono mt-0.5">{p.id}</p>
+          {loading ? (
+            <div className="py-10 text-center text-slate-400 font-medium">
+              Loading current database profiles...
+            </div>
+          ) : patients.length === 0 ? (
+            <div className="py-10 text-center text-slate-400 font-medium">
+              No medical database patient entries detected.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {patients.slice(0, 5).map((p) => (
+                <div key={p.id} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-lg border border-transparent hover:border-slate-100 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-full bg-slate-100 border border-slate-200 text-[#078a72] flex items-center justify-center font-black">
+                      {p.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-slate-800">{p.name}</h4>
+                      <p className="text-xs text-slate-400 font-mono mt-0.5">{p.id}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-slate-400 font-medium">{p.date}</span>
+                    <button onClick={() => handleSelectPatient(p)} className="px-4 py-2 border border-slate-300 text-slate-700 rounded-md text-xs font-bold hover:bg-slate-100 transition-colors cursor-pointer tracking-wide">
+                      Load Records
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-slate-400 font-medium">{p.date}</span>
-                  <button onClick={() => handleSelectPatient(p)} className="px-4 py-2 border border-slate-300 text-slate-700 rounded-md text-xs font-bold hover:bg-slate-100 transition-colors cursor-pointer tracking-wide">
-                    Load Records
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

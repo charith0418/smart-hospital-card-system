@@ -1,59 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaSearch, FaExclamationTriangle, FaPlusSquare, FaPhoneAlt, FaPrint } from "react-icons/fa";
 
-// Available dummy database for the autocomplete lookup
-const PATIENT_DATABASE = [
-  {
-    patientId: "PT-8392",
-    fullName: "Eleanor Vance",
-    dob: "1994-08-12",
-    bloodGroup: "A+",
-    lastVisit: "2026-07-10",
-    phone: "+1 (555) 234-5678",
-    email: "eleanor.v@example.com",
-    address: "742 Evergreen Terrace, Springfield"
-  },
-  {
-    patientId: "PT-2048",
-    fullName: "Marcus Sterling",
-    dob: "1981-11-23",
-    bloodGroup: "O-",
-    lastVisit: "2026-06-28",
-    phone: "+1 (555) 876-5432",
-    email: "m.sterling@example.com",
-    address: "104 Baker St, London"
-  },
-  {
-    patientId: "PT-5712",
-    fullName: "Amara Patel",
-    dob: "2003-01-15",
-    bloodGroup: "B+",
-    lastVisit: "2026-07-02",
-    phone: "+1 (555) 456-7890",
-    email: "amara.patel@example.com",
-    address: "456 Oak Avenue, Maplewood"
-  },
-  {
-    patientId: "PT-9401",
-    fullName: "Liam Nilsson",
-    dob: "1965-04-30",
-    bloodGroup: "AB-",
-    lastVisit: "2026-05-14",
-    phone: "+1 (555) 987-6543",
-    email: "liam.nilsson@example.com",
-    address: "89 Pine Boulevard, Seattle"
-  },
-  {
-    patientId: "PT-3110",
-    fullName: "Clara Zhang",
-    dob: "1991-12-05",
-    bloodGroup: "O+",
-    lastVisit: "2026-07-12",
-    phone: "+1 (555) 321-7654",
-    email: "clara.z@example.com",
-    address: "12 Cherry Lane, San Francisco"
-  }
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export default function PrintCard() {
   const [patientId, setPatientId] = useState("");
@@ -68,19 +16,38 @@ export default function PrintCard() {
   const cardSectionRef = useRef(null);
   const searchContainerRef = useRef(null);
 
-  // Filter suggestion list as the user types
-  const handleInputChange = (e) => {
+  // Queries the backend API live as the user types
+  const handleInputChange = async (e) => {
     const value = e.target.value;
     setPatientId(value);
 
     if (value.trim().length > 0) {
-      const filtered = PATIENT_DATABASE.filter(
-        (p) =>
-          p.patientId.toLowerCase().includes(value.toLowerCase()) ||
-          p.fullName.toLowerCase().includes(value.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(true);
+      try {
+        const token = localStorage.getItem("token");
+        // Fetches all patients or searches with query parameters depending on your API setup
+        const response = await fetch(`${API_BASE_URL}/patients`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Filter dynamically based on search inputs
+          const filtered = data.filter(
+            (p) =>
+              (p.patientId && p.patientId.toLowerCase().includes(value.toLowerCase())) ||
+              (p.fullName && p.fullName.toLowerCase().includes(value.toLowerCase())) ||
+              (p.nic && p.nic.toLowerCase().includes(value.toLowerCase()))
+          );
+          setSuggestions(filtered);
+          setShowSuggestions(true);
+        }
+      } catch (err) {
+        console.error("Live lookup fetch failed:", err);
+      }
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -100,44 +67,50 @@ export default function PrintCard() {
 
   // When user clicks a suggestion from the popup list
   const selectSuggestion = (patient) => {
-    setPatientId(patient.patientId);
+    setPatientId(patient.patientId || patient._id);
     setSuggestions([]);
     setShowSuggestions(false);
-    loadPatientCard(patient.patientId);
+    loadPatientCard(patient.patientId || patient._id);
   };
 
-  // Core fetch and load logic
+  // Core fetch and load logic from Mongoose backend
   const loadPatientCard = async (idToFetch) => {
+    if (!idToFetch) return;
     setLoading(true);
     setError("");
     setPatientData(null);
 
     try {
-      const response = await fetch(`/api/patients/${idToFetch}`);
-      const contentType = response.headers.get("content-type");
-      
-      if (response.ok && contentType && contentType.includes("application/json")) {
-        const data = await response.json();
-        setPatientData(data);
-      } else {
-        console.warn("Backend API not reachable. Using local mock data fallback...");
-        const localMatch = PATIENT_DATABASE.find(
-          p => p.patientId.toLowerCase() === idToFetch.toLowerCase()
-        );
-        
-        if (localMatch) {
-          setPatientData(localMatch);
-        } else {
-          throw new Error(`Patient ID "${idToFetch}" could not be found.`);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/patients/${idToFetch}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Patient record "${idToFetch}" could not be found in the database.`);
       }
+
+      const data = await response.json();
+      
+      // Clean up backend model attributes into predictable state fields
+      setPatientData({
+        patientId: data.patientId || data._id.substring(18).toUpperCase(),
+        fullName: data.fullName || "Registered Patient",
+        dob: data.dob ? data.dob.split("T")[0] : "N/A",
+        bloodGroup: data.bloodGroup || "--",
+        phone: data.phone || "N/A"
+      });
       
       setTimeout(() => {
         cardSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 150);
     } catch (err) {
-      console.error("Error fetching card details", err);
-      setError(err.message || "Failed to load the health card. Please verify the ID.");
+      console.error("Error fetching card details:", err);
+      setError(err.message || "Failed to load the health card from server registry.");
     } finally {
       setLoading(false);
     }
@@ -170,11 +143,11 @@ export default function PrintCard() {
           <div className="flex bg-slate-50 rounded-xl border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#078a72] transition-all flex-1">
             <input
               type="text"
-              placeholder="Start typing (e.g., PT, Eleanor, Amara...)"
+              placeholder="Search by ID or Full Identity Name..."
               value={patientId}
               onChange={handleInputChange}
               onFocus={() => patientId && setShowSuggestions(true)}
-              className="w-full bg-transparent px-5 py-3 outline-none text-base"
+              className="w-full bg-transparent px-5 py-3 outline-hidden text-base text-slate-950 font-medium"
               required
             />
           </div>
@@ -193,16 +166,18 @@ export default function PrintCard() {
           <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto divide-y divide-slate-100">
             {suggestions.map((patient) => (
               <div
-                key={patient.patientId}
+                key={patient.patientId || patient._id}
                 onClick={() => selectSuggestion(patient)}
-                className="px-5 py-3.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors"
+                className="px-5 py-3.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors text-left"
               >
                 <div>
-                  <p className="font-bold text-slate-900">{patient.fullName}</p>
-                  <p className="text-[13px] text-slate-400">DOB: {patient.dob} | {patient.email}</p>
+                  <p className="font-bold text-slate-900">{patient.fullName || "Registered Patient"}</p>
+                  <p className="text-[13px] text-slate-400">
+                    DOB: {patient.dob ? patient.dob.split("T")[0] : "N/A"} | Nic: {patient.nic || "N/A"}
+                  </p>
                 </div>
                 <span className="font-mono font-bold text-sm text-[#078a72] bg-emerald-50 px-2.5 py-1 rounded-md">
-                  {patient.patientId}
+                  {patient.patientId || patient._id.substring(18).toUpperCase()}
                 </span>
               </div>
             ))}
@@ -248,7 +223,7 @@ export default function PrintCard() {
               <div className="flex justify-between items-start border-b border-white/20 pb-2.5 z-10">
                 <div className="flex items-center gap-2">
                   <FaPlusSquare className="text-2xl text-emerald-300 shrink-0" />
-                  <div>
+                  <div className="text-left">
                     <h1 className="text-xs font-bold tracking-wide uppercase leading-none">Medicare Network</h1>
                     <p className="text-[8px] text-blue-200 tracking-wider uppercase font-medium mt-1">Smart Health Profile</p>
                   </div>
@@ -275,7 +250,7 @@ export default function PrintCard() {
                     </div>
                     <div>
                       <p className="text-[8px] text-blue-200 uppercase font-bold tracking-wider">Blood Type</p>
-                      <p className="text-xs font-black text-emerald-300">{patientData.bloodGroup || "--"}</p>
+                      <p className="text-xs font-black text-emerald-300">{patientData.bloodGroup}</p>
                     </div>
                   </div>
                 </div>
@@ -297,7 +272,7 @@ export default function PrintCard() {
                   <FaPhoneAlt className="text-[8px] text-emerald-300" />
                   <span className="font-medium opacity-80">ICE Contact:</span>
                   <span className="font-bold font-mono tracking-wide">
-                    {patientData.phone || "+94 77 123 4567"}
+                    {patientData.phone}
                   </span>
                 </div>
                 <span className="text-[7px] font-mono opacity-35 tracking-tight">ISO CR-80 Secure Spec</span>
