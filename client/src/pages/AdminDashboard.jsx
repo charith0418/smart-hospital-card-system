@@ -1,11 +1,11 @@
 import React from "react";
 
-import AdminSidebar from "../components/AdminSidebar";
-import AdminNavbar from "../components/AdminNavebar";
-import StatCard from "../components/StatCard";
-import OverviewChart from "../components/OverviewChart";
-import ActivityChart from "../components/ActivityChart";
-import ActivityLogs from "../components/ActivityLogs";
+import AdminSidebar from "../components/Dashboard/AdminSidebar";
+import AdminNavbar from "../components/Dashboard/AdminNavebar";
+import StatCard from "../components/Dashboard/StatCard";
+import OverviewChart from "../components/Dashboard/OverviewChart";
+import ActivityChart from "../components/Dashboard/ActivityChart";
+import ActivityLogs from "../components/Dashboard/ActivityLogs";
 
 
 import {

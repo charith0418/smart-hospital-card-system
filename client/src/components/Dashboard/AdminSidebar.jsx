@@ -15,11 +15,8 @@ import {
 
 const menuItems = [
   { title: "Dashboard", icon: <FaTachometerAlt />, path: "/" },
-  { title: "User Management", icon: <FaUsers />, path: "/users" },
   { title: "Doctors", icon: <FaUserMd />, path: "/doctors" },
   { title: "Staff", icon: <FaUserNurse />, path: "/staff" },
-  { title: "System Logs", icon: <FaClipboardList />, path: "/logs" },
-  { title: "Reports", icon: <FaFileAlt />, path: "/reports" },
   { title: "Logout", icon: <FaSignOutAlt />, path: "/logout" },
 ];
 

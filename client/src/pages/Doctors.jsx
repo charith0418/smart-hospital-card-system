@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import AdminSidebar from "../components/AdminSidebar";
-import AdminNavbar from "../components/AdminNavebar";
+import AdminSidebar from "../components/Dashboard/AdminSidebar";
+import AdminNavbar from "../components/Dashboard/AdminNavebar";
 import DoctorModal from "../components/doctors/DoctorModal";
 import DoctorTable from "../components/doctors/DoctorTable";
 import ViewDoctorModal from "../components/doctors/ViewDoctorModal";
