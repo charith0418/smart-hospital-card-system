@@ -11,6 +11,7 @@ const patientProfileSchema = new mongoose.Schema({
     address: { type: String },
     gender: { type: String },
     lastVisit: { type: Date },
+    allergies: [{ type: String }],
     qrCodeData: { type: String },
     emergencyContact: {
         name: { type: String },

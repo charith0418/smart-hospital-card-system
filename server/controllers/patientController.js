@@ -71,6 +71,23 @@ const searchPatients = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+//adding allergies part from doctor dashabord
+const updateAllergies = async (req, res) => {
+    const { allergies } = req.body;
+    try {
+        const patient = await PatientProfile.findOneAndUpdate(
+            { patientId: req.params.id },
+            { allergies },
+            { returnDocument: 'after' }
+        );
+        if (!patient) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+        res.status(200).json({ message: 'Allergies updated', patient });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
 
 
-module.exports = { registerPatient, getPatients, getPatientById,searchPatients };
+module.exports = { registerPatient, getPatients, getPatientById,searchPatients,updateAllergies };
