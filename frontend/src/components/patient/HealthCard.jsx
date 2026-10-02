@@ -1,101 +1,131 @@
-import React from "react";
-import { FaDownload } from "react-icons/fa";
+import React, { useRef, useState } from "react";
+import { FaPlusSquare, FaPhoneAlt, FaDownload } from "react-icons/fa";
+import html2canvas from "html2canvas";
 
-// CHANGED PLACE: Added a 'fullWidth' prop to conditionally style its size
-export default function HealthCard({ user = {}, fullWidth = false }) {
+export default function HealthCard({ user = {}, emergencyContact = { phone: "+94 77 123 4567" } }) {
+  const cardRef = useRef(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Generate QR code using public API for simple, clean static images
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=14427D&data=${user.patientId || "Patient"}`;
+
+  const handleDownload = async () => {
+    if (!cardRef.current) return;
+    try {
+      setIsDownloading(true);
+
+      // Render the specific card target frame element only
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 3, // Boosts resolution for physical print clarity
+        useCORS: true, // Crucial for loading the external QR Code API image
+        backgroundColor: null, // Transparent corners outside rounded frame
+        logging: false,
+      });
+
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `${user.patientId || "Patient"}_HealthCard.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Card download failed:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
-    <div className={`bg-gradient-to-r from-green-100 to-green-50 border border-green-200 rounded-2xl p-6 sm:p-8 shadow-sm transition-all w-full ${
-      fullWidth ? "max-w-4xl mx-auto" : "lg:col-span-2"
-    }`}>
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-green-200/40">
+    <div className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm w-full h-full flex flex-col justify-between">
+      
+      {/* Action Header Row */}
+      <div className="flex justify-between items-start gap-4 mb-4">
         <div>
-          <h3 className="text-xl sm:text-2xl font-bold text-green-800">
-            Digital Health Card
-          </h3>
-          <p className="text-sm text-gray-500">
-            Scan the QR code to access patient information.
+          <h3 className="text-lg font-bold text-slate-800">Your Smart Health Card</h3>
+          <p className="text-xs text-slate-400 mt-1">
+            Download a high-resolution offline copy.
           </p>
         </div>
 
-        <button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl transition font-medium shadow-sm">
-          <FaDownload />
-          Download Card
+        <button
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className="flex items-center gap-2 bg-[#1E5FAD] hover:bg-[#14427D] disabled:bg-slate-300 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm cursor-pointer select-none shrink-0"
+        >
+          <FaDownload className={isDownloading ? "animate-bounce" : ""} />
+          {isDownloading ? "Saving..." : "Download Card"}
         </button>
       </div>
 
-      {/* Body */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-8 bg-white/60 p-6 rounded-xl border border-white/80">
+      {/* Visual Canvas Card Frame Container */}
+      <div className="flex-1 py-4 bg-slate-50/50 rounded-xl border border-dashed border-slate-200 flex items-center justify-center min-h-[250px]">
+        
+        {/* Capturable ID Card - Target Container */}
+        <div 
+          ref={cardRef}
+          className="w-[380px] h-[230px] bg-gradient-to-br from-[#1E5FAD] to-[#14427D] text-white rounded-2xl p-5 flex flex-col justify-between shadow-xl relative overflow-hidden shrink-0 border border-blue-900"
+        >
+          {/* Subtle background overlay designs */}
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full pointer-events-none" />
+          <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full pointer-events-none" />
 
-        {/* Left Side */}
-        <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-6 w-full">
+          {/* Top Banner Row */}
+          <div className="flex justify-between items-start border-b border-white/20 pb-2.5 z-10">
+            <div className="flex items-center gap-2">
+              <FaPlusSquare className="text-2xl text-emerald-300 shrink-0" />
+              <div>
+                <h1 className="text-xs font-bold tracking-wide uppercase leading-none">Medicare Network</h1>
+                <p className="text-[8px] text-blue-200 tracking-wider uppercase font-medium mt-1">Smart Health Profile</p>
+              </div>
+            </div>
+            <span className="bg-red-500/20 text-red-200 border border-red-400/30 font-black text-[9px] px-2 py-0.5 rounded-md tracking-wider">
+              EMERGENCY
+            </span>
+          </div>
 
-          <img
-            src={user.profileImage || "https://i.pravatar.cc/150?img=11"}
-            alt="Patient"
-            className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg object-cover"
-          />
+          {/* Dynamic Core Body Row */}
+          <div className="flex flex-1 items-center justify-between gap-4 py-2 z-10">
+            
+            <div className="flex-1 space-y-2.5 text-left">
+              <div>
+                <p className="text-[8px] text-blue-200 uppercase font-bold tracking-wider">Patient Name</p>
+                <h2 className="text-sm font-black truncate max-w-[190px] tracking-tight text-white">{user.name || "Patient Name"}</h2>
+              </div>
 
-          <div className="space-y-2.5">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
-              {user.name || "Patient Name"}
-            </h2>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-[8px] text-blue-200 uppercase font-bold tracking-wider">Patient ID</p>
+                  <p className="text-xs font-mono font-bold tracking-wide">{user.patientId || "P00001"}</p>
+                </div>
+                <div>
+                  <p className="text-[8px] text-blue-200 uppercase font-bold tracking-wider">Blood Type</p>
+                  <p className="text-xs font-black text-emerald-300">{user.bloodGroup || "--"}</p>
+                </div>
+              </div>
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-base text-gray-600">
-              <p>
-                <span className="font-semibold text-gray-700">Patient ID:</span>{" "}
-                {user.patientId || "P00000"}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-700">Blood Group:</span>{" "}
-                {user.bloodGroup || "--"}
-              </p>
-              <p className="sm:col-span-2">
-                <span className="font-semibold text-gray-700">Date of Birth:</span>{" "}
-                {user.dob || "--/--/----"}
-              </p>
+            {/* QR Code Container */}
+            <div className="bg-white p-1.5 rounded-xl shrink-0 flex items-center justify-center shadow-md">
+              <img 
+                src={qrCodeUrl}
+                alt="Verification QR"
+                className="w-16 h-16 object-contain"
+                crossOrigin="anonymous" // Essential config for cross-origin image loads into canvas
+              />
             </div>
           </div>
 
-        </div>
+          {/* Bottom ICE bar Row */}
+          <div className="border-t border-white/10 pt-2 flex items-center justify-between z-10 text-[9px]">
+            <div className="flex items-center gap-1.5 text-blue-100">
+              <FaPhoneAlt className="text-[8px] text-emerald-300" />
+              <span className="font-medium opacity-80">ICE Contact:</span>
+              <span className="font-bold font-mono tracking-wide">{emergencyContact.phone}</span>
+            </div>
+            <span className="text-[7px] font-mono opacity-35 tracking-tight">ISO CR-80 Secure Spec</span>
+          </div>
 
-        {/* Right Side */}
-        <div className="flex flex-col items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 min-w-[180px]">
-          <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${
-              user.patientId || "Patient"
-            }`}
-            alt="QR Code"
-            className="w-36 h-36"
-          />
-          <p className="text-xs font-medium text-gray-400 mt-3 tracking-wide">
-            SCAN TO VERIFY PATIENT
-          </p>
-        </div>
-
-      </div>
-
-      {/* Footer Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-50">
-          <p className="text-xs text-gray-400 font-medium">Gender</p>
-          <h4 className="font-bold text-gray-800 mt-1 text-base">{user.gender || "--"}</h4>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-50">
-          <p className="text-xs text-gray-400 font-medium">Phone</p>
-          <h4 className="font-bold text-gray-800 mt-1 text-base">{user.phone || "--"}</h4>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-50">
-          <p className="text-xs text-gray-400 font-medium">Email Address</p>
-          <h4 className="font-bold text-gray-800 mt-1 text-sm truncate">{user.email || "--"}</h4>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-50">
-          <p className="text-xs text-gray-400 font-medium">Status</p>
-          <h4 className="font-bold text-green-600 mt-1 text-base">Active Registered</h4>
         </div>
       </div>
 

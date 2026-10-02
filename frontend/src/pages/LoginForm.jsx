@@ -16,21 +16,18 @@ import { FaUser } from "react-icons/fa";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const LoginForm = ({ onLoginSuccess }) => {
-  // Core State Tracking
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState(""); 
+  const [role, setRole] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  
-  // Track the checkbox tick status
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Status Tracking
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Check for a saved email when the login page initially opens
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail) {
@@ -39,7 +36,6 @@ const LoginForm = ({ onLoginSuccess }) => {
     }
   }, []);
 
-  // Form Submission handler
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -51,15 +47,25 @@ const LoginForm = ({ onLoginSuccess }) => {
 
     try {
       setLoading(true);
-      
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
+
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+        email: email.trim(),
         password,
-        role, 
+        role,
       });
 
       if (response.data) {
-        alert("Login Successful!");
+        const token =
+          response.data?.token ||
+          response.data?.accessToken ||
+          response.data?.data?.token ||
+          response.data?.data?.accessToken;
+
+        if (!token) {
+          throw new Error("Authentication succeeded, but no token was provided by the server.");
+        }
+
+        localStorage.setItem("token", token);
 
         if (rememberMe) {
           localStorage.setItem("rememberedEmail", email);
@@ -67,12 +73,17 @@ const LoginForm = ({ onLoginSuccess }) => {
           localStorage.removeItem("rememberedEmail");
         }
 
-        if (onLoginSuccess) onLoginSuccess(role); 
+        if (onLoginSuccess) {
+          onLoginSuccess(role);
+        }
       }
     } catch (error) {
-      console.error("Backend Error Response:", error.response);
+      console.error("Backend Error Response:", error.response || error);
       setErrorMessage(
-        error.response?.data?.message || "Connection to backend failed. Check CORS/Server."
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Connection to backend failed. Check server logs."
       );
     } finally {
       setLoading(false);
@@ -86,8 +97,6 @@ const LoginForm = ({ onLoginSuccess }) => {
         style={{ backgroundImage: `url(${Hero})` }}
       >
         <div className="w-full max-w-xl bg-white/90 backdrop-blur-md border border-white/50 rounded-[24px] sm:rounded-[32px] shadow-2xl p-6 sm:p-8 md:p-10 my-auto">
-          
-          {/* Logo Header Section */}
           <div className="flex flex-row justify-center items-center mb-6 sm:mb-8 gap-3 sm:gap-4">
             <img src={Logo} alt="logo" className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-contain" />
             <div className="leading-tight">
@@ -96,23 +105,18 @@ const LoginForm = ({ onLoginSuccess }) => {
             </div>
           </div>
 
-          {/* Welcome Text Header */}
           <div className="text-center mb-6 sm:mb-8">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Welcome Back</h2>
             <p className="text-slate-500 mt-2 text-base sm:text-lg md:text-xl font-medium">Sign in to continue to your account</p>
           </div>
 
-          {/* Error Banner Notification */}
           {errorMessage && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2.5 rounded-xl mb-6 font-semibold text-sm sm:text-base md:text-lg text-center">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2.5 rounded-xl mb-6 font-semibold text-sm sm:text-base text-center">
               {errorMessage}
             </div>
           )}
 
-          {/* Form Area */}
           <form className="space-y-4 sm:space-y-5 md:space-y-6" onSubmit={handleLoginSubmit}>
-            
-            {/* Email Input Field */}
             <div className="flex items-center bg-slate-50/80 border border-slate-200 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-100 focus-within:bg-white transition-all shadow-sm">
               <MdOutlineMailOutline className="text-slate-400 text-2xl sm:text-3xl shrink-0" />
               <input
@@ -125,7 +129,6 @@ const LoginForm = ({ onLoginSuccess }) => {
               />
             </div>
 
-            {/* Password Input Field */}
             <div className="flex items-center bg-slate-50/80 border border-slate-200 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-100 focus-within:bg-white transition-all shadow-sm">
               <RiLockPasswordFill className="text-slate-400 text-2xl sm:text-3xl shrink-0" />
               <input
@@ -145,14 +148,13 @@ const LoginForm = ({ onLoginSuccess }) => {
               </button>
             </div>
 
-            {/* Remember Me & Forgot Password */}
             <div className="flex flex-row justify-between items-center px-1 gap-2">
               <label className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base md:text-xl text-slate-600 cursor-pointer select-none font-medium">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 sm:w-5 sm:h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 accent-blue-600" 
+                  className="w-4 h-4 sm:w-5 sm:h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 accent-blue-600"
                 />
                 Remember me
               </label>
@@ -161,13 +163,10 @@ const LoginForm = ({ onLoginSuccess }) => {
               </a>
             </div>
 
-            {/* Role Grid Selection */}
             <div className="pt-2">
               <p className="font-bold text-base sm:text-lg md:text-xl text-slate-800 mb-3 sm:mb-4 px-1">Select Role</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                
-                {/* Patient Selection Card */}
-                <div 
+                <div
                   onClick={() => setRole("Patient")}
                   className={`border rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 shadow-sm hover:-translate-y-0.5 ${
                     role === "Patient" ? "border-blue-600 bg-blue-100/70 ring-2 ring-blue-400" : "border-slate-200 bg-white"
@@ -177,8 +176,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                   <p className="font-bold text-sm sm:text-base md:text-lg text-slate-700">Patient</p>
                 </div>
 
-                {/* Doctor Selection Card */}
-                <div 
+                <div
                   onClick={() => setRole("Doctor")}
                   className={`border rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 shadow-sm hover:-translate-y-0.5 ${
                     role === "Doctor" ? "border-blue-600 bg-blue-100/70 ring-2 ring-blue-400" : "border-slate-200 bg-white"
@@ -188,8 +186,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                   <p className="font-bold text-sm sm:text-base md:text-lg text-slate-700">Doctor</p>
                 </div>
 
-                {/* Staff Selection Card */}
-                <div 
+                <div
                   onClick={() => setRole("Staff")}
                   className={`border rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 shadow-sm hover:-translate-y-0.5 ${
                     role === "Staff" ? "border-blue-600 bg-blue-100/70 ring-2 ring-blue-400" : "border-slate-200 bg-white"
@@ -199,8 +196,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                   <p className="font-bold text-sm sm:text-base md:text-lg text-slate-700">Staff</p>
                 </div>
 
-                {/* Admin Selection Card */}
-                <div 
+                <div
                   onClick={() => setRole("Admin")}
                   className={`border rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 shadow-sm hover:-translate-y-0.5 ${
                     role === "Admin" ? "border-blue-600 bg-blue-100/70 ring-2 ring-blue-400" : "border-slate-200 bg-white"
@@ -209,11 +205,9 @@ const LoginForm = ({ onLoginSuccess }) => {
                   <FaUserShield className="text-2xl sm:text-3xl md:text-4xl text-orange-500 mb-2" />
                   <p className="font-bold text-sm sm:text-base md:text-lg text-slate-700">Admin</p>
                 </div>
-
               </div>
             </div>
 
-            {/* Login Submission Action Button */}
             <button
               type="submit"
               disabled={loading}
@@ -223,12 +217,10 @@ const LoginForm = ({ onLoginSuccess }) => {
             </button>
           </form>
 
-          {/* Secure Trust Footer Badge */}
           <div className="flex justify-center items-center mt-6 sm:mt-8 md:mt-10 pt-3 border-t border-slate-100">
             <FaShieldHalved className="text-blue-600 text-xl sm:text-2xl mr-2 sm:mr-3 shrink-0" />
             <p className="text-xs sm:text-sm md:text-base font-bold text-slate-600 tracking-wide text-center">Secure & Trusted Healthcare System</p>
           </div>
-          
         </div>
       </div>
     </div>

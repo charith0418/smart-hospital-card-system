@@ -50,10 +50,13 @@ export default function EmergencyContact({ emergencyContact = {} }) {
           </div>
 
           {/* Call Button */}
-          <button className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition">
-            <FaPhoneAlt />
-            Call Now
-          </button>
+          <button
+            onClick={() => window.location.href = `tel:${emergencyContact.phone}`}
+            className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition"
+          >
+  <FaPhoneAlt />
+  Call Now
+</button>
 
         </div>
       ) : (

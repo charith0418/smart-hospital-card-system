@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 
+// @desc    Register a new user
+// @route   POST /api/auth/register
 const registerUser = async (req, res) => {
     const { email, password, role } = req.body;
     try {
@@ -14,6 +16,8 @@ const registerUser = async (req, res) => {
     }
 };
 
+// @desc    Authenticate user & get token
+// @route   POST /api/auth/login
 const loginUser = async (req, res) => {
     const { email, password, role, rememberMe } = req.body;
 
@@ -44,7 +48,5 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
-
 
 module.exports = { loginUser, registerUser };

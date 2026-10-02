@@ -1,46 +1,72 @@
 import React from "react";
-import { FaPlusSquare, FaHome, FaUsers, FaQrcode, FaCalendarCheck, FaBriefcaseMedical, FaFileAlt, FaCog, FaSignOutAlt } from "react-icons/fa";
+import { FaThLarge, FaSignOutAlt, FaPlusSquare } from "react-icons/fa";
 
-const menuItems = [
-  { name: "DoctorDashboard", id: "dashboard", icon: <FaHome /> },
-  { name: "Patients", id: "patients", icon: <FaUsers /> },
-  { name: "Scan QR", id: "scan", icon: <FaQrcode /> },
-  { name: "Treatments", id: "treatments", icon: <FaBriefcaseMedical /> },
-  { name: "Prescriptions", id: "prescriptions", icon: <FaFileAlt /> },
-  { name: "Reports", id: "reports", icon: <FaFileAlt /> },
-  { name: "Settings", id: "settings", icon: <FaCog /> },
-];
+export default function DoctorSidebar({ activeTab, setActiveTab, onLogout }) {
+  const menuItems = [
+    { name: "Dashboard", id: "dashboard", icon: <FaThLarge /> },
+  ];
 
-export default function DoctorSidebar({ sidebarOpen, setSidebarOpen, activeTab, setActiveTab, onLogout }) {
+  const handleLogoutClick = () => {
+    
+    if (typeof onLogout === "function") {
+      onLogout();
+    } else {
+      
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "/login";
+    }
+  };
+
   return (
-    <aside className={`fixed top-0 left-0 z-50 w-64 h-screen bg-[#1E3A8A] text-white flex flex-col shadow-2xl transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} xl:translate-x-0`}>
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-white/10">
-        <FaPlusSquare className="text-3xl text-blue-400" />
-        <div>
-          <h1 className="text-lg font-bold tracking-wide">Smart</h1>
-          <p className="text-blue-300 text-xs">Health Card</p>
+    <aside className="sticky top-0 h-screen w-64 bg-[#00875A] text-white flex flex-col justify-between p-4 z-50 shrink-0">
+      <div className="space-y-6">
+        {/* Brand Header */}
+        <div className="flex items-center gap-3 px-2 py-4">
+          <div className="bg-white/20 p-2 rounded-xl text-white">
+            <FaPlusSquare className="text-2xl" />
+          </div>
+          <h1 className="text-md font-bold tracking-wide">Medicare Hospital</h1>
         </div>
+
+        {/* Main Navigation Links */}
+        <nav className="space-y-1">
+          {menuItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer text-left ${
+                  isActive
+                    ? "bg-[#005C3E] text-white font-semibold shadow-inner"
+                    : "text-white/85 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <span className="text-lg opacity-90">{item.icon}</span>
+                <span>{item.name}</span>
+              </button>
+            );
+          })}
+
+          {/* Spacer block */}
+          <div className="h-12" />
+
+          {/* Logout Button */}
+          <button
+            type="button"
+            onClick={handleLogoutClick}
+            className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-white/85 hover:bg-rose-600/30 hover:text-white transition-all cursor-pointer text-left"
+          >
+            <span className="text-lg">
+              <FaSignOutAlt />
+            </span>
+            <span>Logout</span>
+          </button>
+        </nav>
       </div>
 
-      <nav className="flex-1 mt-4 px-3 overflow-y-auto space-y-1">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-            className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-sm transition-all ${
-              activeTab === item.id ? "bg-white text-[#1E3A8A] font-semibold shadow-md" : "hover:bg-white/10 text-slate-200"
-            }`}
-          >
-            <span className="text-lg">{item.icon}</span>
-            {item.name}
-          </button>
-        ))}
-
-        <button onClick={onLogout} className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-sm text-red-300 hover:bg-red-600/20 transition-all mt-6">
-          <span className="text-lg"><FaSignOutAlt /></span>
-          Logout
-        </button>
-      </nav>
+      <div />
     </aside>
   );
 }
