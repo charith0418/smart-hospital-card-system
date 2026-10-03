@@ -1,21 +1,57 @@
-import React, { useState } from 'react'
-// import LoginForm from './pages/LoginForm'
-import StaffDashboard from './pages/StaffDashboard'
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LoginForm from "./pages/LoginForm";
+import StaffSidebar from "./components/StaffSidebar";
+import Patient from "./pages/Patient";
+import Doctor from "./pages/Doctor";
+import Admin from "./pages/Admin";
 
 const App = () => {
-  // 1. Tracks whether a user is logged in (toggle to false to show login form later)
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState("");
+
+  const handleLoginSuccess = (role) => {
+    setIsAuthenticated(true);
+    setUserRole(role);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUserRole("");
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-[#1e293b] antialiased">
-      {isAuthenticated ? (
-        <StaffDashboard />
-      ) : (
-        // <LoginForm onLoginSuccess={() => setIsAuthenticated(true)} />
-        <div className="flex items-center justify-center h-screen">Login Form Standby</div>
-      )}
-    </div>
-  )
-}
+    <Router>
+      <div className="min-h-screen bg-gray-50 text-[#1e293b] antialiased">
+        {isAuthenticated ? (
+          <Routes>
+            {userRole === "Staff" && (
+              <Route path="/*" element={<StaffSidebar onLogout={handleLogout} />} />
+            )}
 
-export default App
+            {userRole === "Patient" && (
+              <Route path="/*" element={<Patient onLogout={handleLogout} />} />
+            )}
+
+            {userRole === "Doctor" && (
+              <Route path="/*" element={<Doctor onLogout={handleLogout} />} />
+            )}
+
+            {userRole === "Admin" && (
+              <Route path="/admin/*" element={<Admin onLogout={handleLogout} />} />
+            )}
+
+            <Route
+              path="*"
+              element={<Navigate to={userRole === "Admin" ? "/admin" : "/"} replace />}
+            />
+          </Routes>
+        ) : (
+          <LoginForm onLoginSuccess={handleLoginSuccess} />
+        )}
+      </div>
+    </Router>
+  );
+};
+
+export default App;
